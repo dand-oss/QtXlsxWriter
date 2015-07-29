@@ -37,7 +37,6 @@
 #include "xlsxcell_p.h"
 #include "xlsxcellrange.h"
 #include "xlsxconditionalformatting_p.h"
-#include "xlsxdrawinganchor_p.h"
 #include "xlsxchart.h"
 #include "xlsxcellformula.h"
 #include "xlsxcellformula_p.h"
@@ -1039,6 +1038,38 @@ bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)
         rule->priority = 1;
     }
     d->conditionalFormattingList.append(cf);
+    return true;
+}
+
+/*!
+ * Insert an \a Object with mime type at the position \a row, \a column
+ * Returns true on success.
+ */
+bool Worksheet::insertObj(int row, int column,
+                          int width, int height,
+                          const QString& filename,
+                          const QString& mimeType,
+                          const DrawingAnchor::ObjectType objType)
+{
+    Q_D(Worksheet);
+
+    if (!d->drawing)
+        d->drawing = QSharedPointer<Drawing>(
+                    new Drawing(this, F_NewFromScratch));
+
+    DrawingOneCellAnchor *anchor =
+            new DrawingOneCellAnchor(d->drawing.data(),
+                                     DrawingAnchor::Picture);
+
+    /*
+        The size are expressed as English Metric Units (EMUs). There are
+        12,700 EMUs per point. Therefore, 12,700 * 3 /4 = 9,525 EMUs per
+        pixel
+    */
+    anchor->from = XlsxMarker(row, column, 0, 0);
+    anchor->ext = QSize(width * 9525, height * 9525);
+
+    anchor->setObjectFile(filename, mimeType, objType);
     return true;
 }
 

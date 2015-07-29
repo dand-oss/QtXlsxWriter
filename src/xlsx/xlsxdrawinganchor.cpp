@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "xlsxdrawinganchor_p.h"
+#include "xlsxdrawinganchor.h"
 #include "xlsxdrawing_p.h"
 #include "xlsxmediafile_p.h"
 #include "xlsxchart.h"
@@ -34,6 +34,8 @@
 #include <QXmlStreamWriter>
 #include <QBuffer>
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 namespace QXlsx {
 
@@ -80,6 +82,26 @@ DrawingAnchor::DrawingAnchor(Drawing *drawing, ObjectType objectType)
 
 DrawingAnchor::~DrawingAnchor()
 {
+}
+
+void DrawingAnchor::setObjectFile(const QString &filename,
+                                  const QString &mimeType,
+                                  const ObjectType objType)
+{
+    QFileInfo fi(filename);
+    Q_ASSERT(fi.isFile());
+
+    QFile qf(filename);
+    qf.open(QIODevice::ReadOnly);
+
+    QByteArray ba(qf.read(fi.size()));
+    qf.close();
+
+    m_pictureFile = QSharedPointer<MediaFile>(
+                new MediaFile(ba, fi.suffix(), mimeType));
+    m_drawing->workbook->addMediaFile(m_pictureFile);
+
+    m_objectType = objType;
 }
 
 void DrawingAnchor::setObjectPicture(const QImage &img)
