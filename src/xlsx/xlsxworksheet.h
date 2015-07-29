@@ -29,6 +29,7 @@
 #include "xlsxcell.h"
 #include "xlsxcellrange.h"
 #include "xlsxcellreference.h"
+#include "xlsxdrawinganchor.h"
 #include <QStringList>
 #include <QMap>
 #include <QVariant>
@@ -102,6 +103,10 @@ public:
     Cell *cellAt(const CellReference &row_column) const;
     Cell *cellAt(int row, int column) const;
 
+    bool insertObj(int row, int column, int width, int height,
+                   const QString& filename,
+                   const QString& mimeType,
+                   const DrawingAnchor::ObjectType objType);
     bool insertImage(int row, int column, const QImage &image);
     Chart *insertChart(int row, int column, const QSize &size);
 

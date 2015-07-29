@@ -477,6 +477,23 @@ QVariant Document::read(int row, int col) const
 }
 
 /*!
+ * Insert an \a EMF drawing to current active worksheet at the
+ * position \a row, \a column.
+ * Returns ture if success.
+ */
+bool Document::insertObj(int row, int col,
+                         int width, int height,
+                         const QString &filename,
+                         const QString &mimeType,
+                         const DrawingAnchor::ObjectType objType)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->insertObj(row, col, width, height,
+                                filename, mimeType, objType);
+    return false;
+}
+
+/*!
  * Insert an \a image to current active worksheet at the position \a row, \a column
  * Returns ture if success.
  */

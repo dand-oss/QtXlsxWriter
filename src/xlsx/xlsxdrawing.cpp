@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "xlsxdrawing_p.h"
-#include "xlsxdrawinganchor_p.h"
+#include "xlsxdrawinganchor.h"
 #include "xlsxabstractsheet.h"
 
 #include <QXmlStreamWriter>

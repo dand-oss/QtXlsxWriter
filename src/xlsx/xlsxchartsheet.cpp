@@ -27,7 +27,7 @@
 #include "xlsxworkbook.h"
 #include "xlsxutility_p.h"
 #include "xlsxdrawing_p.h"
-#include "xlsxdrawinganchor_p.h"
+#include "xlsxdrawinganchor.h"
 #include "xlsxchart.h"
 
 #include <QXmlStreamReader>

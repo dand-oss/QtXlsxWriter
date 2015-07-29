@@ -29,6 +29,7 @@
 #include "xlsxglobal.h"
 #include "xlsxformat.h"
 #include "xlsxworksheet.h"
+#include "xlsxdrawinganchor.h"
 #include <QObject>
 #include <QVariant>
 class QIODevice;
@@ -60,6 +61,11 @@ public:
     bool write(int row, int col, const QVariant &value, const Format &format = Format());
     QVariant read(const CellReference &cell) const;
     QVariant read(int row, int col) const;
+    bool insertObj(int row, int col,
+                   int width, int height,
+                   const QString& filename,
+                   const QString& mimeType,
+                   const DrawingAnchor::ObjectType objType);
     bool insertImage(int row, int col, const QImage &image);
     Chart *insertChart(int row, int col, const QSize &size);
     bool mergeCells(const CellRange &range, const Format &format = Format());
