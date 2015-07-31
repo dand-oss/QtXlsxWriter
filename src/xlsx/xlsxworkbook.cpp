@@ -68,6 +68,15 @@ WorkbookPrivate::WorkbookPrivate(Workbook *q, Workbook::CreateFlag flag)
     last_sheet_id = 0;
 }
 
+WorkbookPrivate::~WorkbookPrivate()
+{
+    size_t ii;
+    for(ii = sheets.size() ; ii-- ; ){
+        sheets.removeAt(ii);
+        sheetNames.removeAt(ii);
+    }
+}
+
 Workbook::Workbook(CreateFlag flag)
     : AbstractOOXmlFile(new WorkbookPrivate(this, flag))
 {
