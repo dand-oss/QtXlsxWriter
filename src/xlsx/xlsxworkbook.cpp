@@ -32,6 +32,7 @@
 #include "xlsxworksheet_p.h"
 #include "xlsxformat_p.h"
 #include "xlsxmediafile_p.h"
+#include "xlsxoleobject.h"
 #include "xlsxutility_p.h"
 
 #include <QXmlStreamWriter>

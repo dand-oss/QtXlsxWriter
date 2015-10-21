@@ -30,6 +30,7 @@
 #include "xlsxcellrange.h"
 #include "xlsxcellreference.h"
 #include "xlsxdrawinganchor.h"
+#include "xlsxoleobject.h"
 #include <QStringList>
 #include <QMap>
 #include <QVariant>
@@ -107,6 +108,16 @@ public:
                    const QString& filename,
                    const QString& mimeType,
                    const DrawingAnchor::ObjectType objType);
+
+    bool insertOleObject(int row, int column, int width, int height,
+                   const QString& filename,
+                   const QString &previewImageFilename,
+                   const QString& mimeType,
+                   const QString &previewMimeType,
+                   const QString& progID,
+                   const QString& requires);
+    QList<QSharedPointer<OleObject> > oleObjectFiles();
+
     bool insertImage(int row, int column, const QImage &image);
     Chart *insertChart(int row, int column, const QSize &size);
 

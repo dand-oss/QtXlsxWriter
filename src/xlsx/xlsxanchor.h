@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2013-2014 Debao Zhang <hello@debao.me>
+** Copyright (c) 2015 AppSmiths, Inc.
 ** All right reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining
@@ -23,52 +23,41 @@
 **
 ****************************************************************************/
 
-#ifndef QXLSX_DRAWING_H
-#define QXLSX_DRAWING_H
+#pragma once
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt Xlsx API.  It exists for the convenience
-// of the Qt Xlsx.  This header file may change from
-// version to version without notice, or even be removed.
-//
-// We mean it.
-//
-
-#include "xlsxrelationships_p.h"
-#include "xlsxabstractooxmlfile.h"
-
-#include <QList>
-#include <QString>
-#include <QSharedPointer>
+#include "xlsxglobal.h"
 #include "xlsxdrawinganchor.h"
 
-class QIODevice;
+#include <QPoint>
+#include <QSize>
+#include <QString>
+#include <QSharedPointer>
+
+class QXmlStreamReader;
 class QXmlStreamWriter;
 
 namespace QXlsx {
 
-class DrawingAnchor;
-class Workbook;
-class AbstractSheet;
-class MediaFile;
+class XlsxMarker;
 
-class Drawing : public AbstractOOXmlFile
+class Anchor
 {
 public:
-    Drawing(AbstractSheet *sheet, CreateFlag flag);
-    ~Drawing();
-    void saveToXmlFile(QIODevice *device) const;
-    bool loadFromXmlFile(QIODevice *device);
 
-    AbstractSheet *sheet;
-    Workbook *workbook;
-    QList<DrawingAnchor *> anchors;
-    QList<XlsxShape *> shapes;
+    Anchor();
+    Anchor(int from_row, int from_column, int from_rowOffset, int from_colOffset,
+           int to_row, int to_column, int to_rowOffset, int to_colOffset);
+    virtual ~Anchor();
+
+    bool loadFromXml(QXmlStreamReader &reader);
+    void saveToXml(QXmlStreamWriter &writer) const;
+
+protected:
+    XlsxMarker loadXmlMarker(QXmlStreamReader &reader, const QString &node);
+    void saveXmlMarker(QXmlStreamWriter &writer, const XlsxMarker &marker, const QString &node) const;
+
+    bool moveWithCells;
+    XlsxMarker from_marker, to_marker;
 };
 
 } // namespace QXlsx
-
-#endif // QXLSX_DRAWING_H

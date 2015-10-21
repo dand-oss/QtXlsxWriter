@@ -66,6 +66,14 @@ public:
                    const QString& filename,
                    const QString& mimeType,
                    const DrawingAnchor::ObjectType objType);
+    bool insertOleObject(int row, int col,
+                   int width, int height,
+                   const QString& filename,
+                    const QString &previewImageFilename,
+                   const QString& mimeType,
+                   const QString &previewMimeType,
+                   const QString& progID,
+                   const QString& requires);
     bool insertImage(int row, int col, const QImage &image);
     Chart *insertChart(int row, int col, const QSize &size);
     bool mergeCells(const CellRange &range, const Format &format = Format());

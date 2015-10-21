@@ -40,6 +40,8 @@
 #include "xlsxchart.h"
 #include "xlsxcellformula.h"
 #include "xlsxcellformula_p.h"
+#include "xlsxanchor.h"
+#include "xlsxmediafile_p.h"
 
 #include <QVariant>
 #include <QDateTime>
@@ -55,6 +57,9 @@
 #include <QDir>
 
 #include <math.h>
+
+#include <iostream>
+using namespace std;
 
 QT_BEGIN_NAMESPACE_XLSX
 
@@ -178,6 +183,31 @@ int WorksheetPrivate::checkDimensions(int row, int col, bool ignore_row, bool ig
     }
 
     return 0;
+}
+
+/*!
+ * \internal
+ */
+void WorksheetPrivate::addOleObjectFile(QSharedPointer<OleObject> obj, bool force)
+{
+    if (!force) {
+        for (int i=0; i< m_oleObjectFiles.size(); ++i) {
+            if (m_oleObjectFiles[i]->hashKey() == obj->hashKey()) {
+                obj->setIndex(i);
+                return;
+            }
+        }
+    }
+    obj->setIndex(m_oleObjectFiles.size());
+    m_oleObjectFiles.append(obj);
+}
+
+/*!
+ * \internal
+ */
+QList<QSharedPointer<OleObject> > WorksheetPrivate::oleObjectFiles() const
+{
+    return m_oleObjectFiles;
 }
 
 /*!
@@ -1074,6 +1104,95 @@ bool Worksheet::insertObj(int row, int column,
 }
 
 /*!
+ * Insert an OLE Object specified by \a filename and with \a mimeType
+ * and \a progID at the position \a row, \a column with the given
+ * \a width and \a height.
+ * Returns true on success.
+ */
+bool Worksheet::insertOleObject(int row,
+                                int column,
+                                int width,
+                                int height,
+                                const QString &filename,
+                                const QString &previewImageFilename,
+                                const QString &mimeType,
+                                const QString &previewMimeType,
+                                const QString &progID,
+                                const QString &requires)
+{
+    Q_D(Worksheet);
+
+    DrawingAnchor::ObjectType objType = DrawingAnchor::ObjectType::Shape;
+    /*
+        The size are expressed as English Metric Units (EMUs). There are
+        12,700 EMUs per point. Therefore, 12,700 * 3 /4 = 9,525 EMUs per
+        pixel
+    */
+    Anchor *anchor =
+            new Anchor(row, column, row*9525, column*9525,
+                       row+height, column+width,
+                       (row+height)*9525, (column+width)*9525);
+
+    if (!d->drawing)
+        d->drawing = QSharedPointer<Drawing>(
+                    new Drawing(this, F_NewFromScratch));
+
+    DrawingTwoCellAnchor *drw_anchor =
+            new DrawingTwoCellAnchor(d->drawing.data(), objType);
+    drw_anchor->from.cell = QPoint(row, column);
+    drw_anchor->from.offset = QSize(row*9525, column*9525);
+    drw_anchor->to.cell = QPoint(row+height, column+width);
+    drw_anchor->to.offset = QSize((row+height)*9525, (column+width)*9525);
+
+    int lidx = filename.lastIndexOf('.');
+    const QString suffix = filename.mid(lidx+1);
+    const QString shapeID = drw_anchor->shape().id;
+    QSharedPointer<OleObject> oo = QSharedPointer<OleObject>(
+                            new OleObject(
+                        filename,
+                        suffix,
+                        progID,
+                        requires,
+                        shapeID));
+    oo->setMimeType(mimeType);
+
+    QFileInfo fi(filename);
+    Q_ASSERT(fi.isFile());
+
+    QFile qf(filename);
+    qf.open(QIODevice::ReadOnly);
+
+    QByteArray ba(qf.read(fi.size()));
+    qf.close();
+    oo->setContents(ba);
+
+    if (previewImageFilename.size() > 0) {
+        drw_anchor->setObjectFile(previewImageFilename,
+                                  previewMimeType,
+                                  objType);
+        QSharedPointer<MediaFile> pic = drw_anchor->picture();
+        QSharedPointer<MediaFile> mf = QSharedPointer<MediaFile>(
+                    new MediaFile(previewImageFilename));
+        mf->set(pic->contents(), pic->suffix(), previewMimeType);
+        oo->setPrMediaFile(mf);
+        d->workbook->addMediaFile(oo->prMediaFile(), true);
+    }
+
+    oo->setAnchor(QSharedPointer<Anchor>(anchor));
+
+    d->addOleObjectFile(oo);
+
+    return true;
+}
+
+QList<QSharedPointer<OleObject> > Worksheet::oleObjectFiles()
+{
+    Q_D(Worksheet);
+
+    return d->oleObjectFiles();
+}
+
+/*!
  * Insert an \a image  at the position \a row, \a column
  * Returns true on success.
  */
@@ -1212,12 +1331,12 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
         QStringLiteral("xmlns:r"),
         QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships"));
 
-    // for Excel 2010
-    //    writer.writeAttribute("xmlns:mc",
-    //    "http://schemas.openxmlformats.org/markup-compatibility/2006");
-    //    writer.writeAttribute("xmlns:x14ac",
-    //    "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
-    //    writer.writeAttribute("mc:Ignorable", "x14ac");
+    //for Excel 2010
+    writer.writeAttribute(QStringLiteral("xmlns:xdr"), QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"));
+    writer.writeAttribute(QStringLiteral("xmlns:x14"), QStringLiteral("http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"));
+    writer.writeAttribute(QStringLiteral("xmlns:mc"), QStringLiteral("http://schemas.openxmlformats.org/markup-compatibility/2006"));
+    writer.writeAttribute(QStringLiteral("mc:Ignorable"), QStringLiteral("x14ac"));
+    writer.writeAttribute(QStringLiteral("xmlns:x14ac"), QStringLiteral("http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac"));
 
     writer.writeStartElement(QStringLiteral("dimension"));
     writer.writeAttribute(QStringLiteral("ref"), d->generateDimensionString());
@@ -1306,6 +1425,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     d->saveXmlDataValidations(writer);
     d->saveXmlHyperlinks(writer);
     d->saveXmlDrawings(writer);
+    d->saveXmlOleObjects(writer);
 
     writer.writeEndElement(); // worksheet
     writer.writeEndDocument();
@@ -1475,6 +1595,89 @@ void WorksheetPrivate::saveXmlDataValidations(QXmlStreamWriter &writer) const
         validation.saveToXml(writer);
 
     writer.writeEndElement(); // dataValidations
+}
+
+void WorksheetPrivate::saveXmlOleObjects(QXmlStreamWriter &writer) const
+{
+    if (oleObjectFiles().isEmpty())
+        return;
+
+    writer.writeStartElement(QStringLiteral("oleObjects"));
+    QList<QSharedPointer<OleObject> > oleFiles = oleObjectFiles();
+
+    for (int i=0; i < oleFiles.size(); ++i) {
+        QSharedPointer<OleObject> obj = oleFiles[i];
+
+        QFileInfo fi(obj->fileName());
+        obj->setIndex(relationships->count()+1);
+        relationships->addWorksheetRelationship(QStringLiteral("/package"),
+                                                QStringLiteral("../embeddings/%1")
+                                                .arg(fi.fileName()));
+
+        QSharedPointer<MediaFile> media = obj->prMediaFile();
+        if (media && media->fileName().size() > 0) {
+            media->setIndex(relationships->count());
+            obj->setPrIndex(media->index());
+            QFileInfo media_fi(media->fileName());
+            relationships->addDocumentRelationship(QStringLiteral("/image"),
+                                                   QStringLiteral("../media/%1")
+                                                   .arg(media_fi.fileName()));
+                                                   //QStringLiteral("../media/image%1.%2")
+                                                   //.arg(media->index()+1)
+                                                   //.arg(media->suffix()));
+        }
+
+        writer.writeStartElement(QStringLiteral("mc:AlternateContent"));
+        writer.writeAttribute(
+                    QStringLiteral("xmlns:mc"),
+                    QStringLiteral("http://schemas.openxmlformats.org/markup-compatibility/2006"));
+
+        writer.writeStartElement(QStringLiteral("mc:Choice"));
+        if (obj->requires().size() > 0)
+            writer.writeAttribute(QStringLiteral("Requires"), obj->requires());
+
+        writer.writeStartElement(QStringLiteral("oleObject"));
+        if (obj->progID().size() > 0)
+            writer.writeAttribute(QStringLiteral("progId"), obj->progID());
+
+        if (obj->shapeID().size() > 0)
+            writer.writeAttribute(QStringLiteral("shapeId"), obj->shapeID());
+
+        if (obj->isIndexValid())
+            writer.writeAttribute(QStringLiteral("r:id"),
+                                  QStringLiteral("rId%1").arg(obj->index()));
+
+        writer.writeStartElement(QStringLiteral("objectPr"));
+        writer.writeAttribute(QStringLiteral("defaultSize"), QStringLiteral("0"));
+        if (media->isIndexValid()) {
+            writer.writeAttribute(QStringLiteral("r:id"),
+                                  QStringLiteral("rId%1").arg(media->index()+1));
+        }
+
+        // write the anchor
+        obj->anchor()->saveToXml(writer);
+
+        writer.writeEndElement(); // objectPr
+        writer.writeEndElement(); // oleObject
+        writer.writeEndElement(); // mc:Choice
+
+        writer.writeStartElement(QStringLiteral("mc:Fallback"));
+        writer.writeStartElement(QStringLiteral("oleObject"));
+        if (obj->progID().size() > 0)
+            writer.writeAttribute(QStringLiteral("progId"), obj->progID());
+
+        if (obj->shapeID().size() > 0)
+            writer.writeAttribute(QStringLiteral("shapeId"), obj->shapeID());
+
+        if (obj->isIndexValid())
+            writer.writeAttribute(QStringLiteral("r:id"),
+                                  QStringLiteral("rId%1").arg(obj->index()));
+        writer.writeEndElement(); // oleObject
+        writer.writeEndElement(); // Fallback
+        writer.writeEndElement(); // mc:AlternateContent
+    }
+
+    writer.writeEndElement();
 }
 
 void WorksheetPrivate::saveXmlHyperlinks(QXmlStreamWriter &writer) const
@@ -2316,7 +2519,109 @@ void WorksheetPrivate::loadXmlHyperlinks(QXmlStreamReader &reader)
     }
 }
 
-QList<QSharedPointer<XlsxColumnInfo>> WorksheetPrivate::getColumnInfoList(int colFirst, int colLast)
+void WorksheetPrivate::loadXmlOleObjects(QXmlStreamReader &reader)
+{
+    Q_ASSERT(reader.name() == QLatin1String("oleObjects"));
+
+    while (!reader.atEnd() && !(reader.name() == QLatin1String("oleObjects")
+            && reader.tokenType() == QXmlStreamReader::EndElement)) {
+        if (reader.readNextStartElement()) {
+            if (reader.name() == QLatin1String("AlternateContent"))   {
+                loadXmlOleObject(reader);
+            }
+        }
+    }
+}
+
+void WorksheetPrivate::loadXmlOleObject(QXmlStreamReader &reader)
+{
+    Q_ASSERT(reader.name() == QLatin1String("AlternateContent"));
+
+    QString requires, progID, shapeID, rID, defaultSize, prID;
+    QXmlStreamAttributes attrs;
+
+    while (!reader.atEnd() && !(reader.name() == QLatin1String("oleObjects")
+            && reader.tokenType() == QXmlStreamReader::EndElement)) {
+        if (reader.readNextStartElement()) {
+            if (reader.name() == QLatin1String("Choice")) {
+                requires = QString();
+                progID = QString();
+                shapeID = QString();
+                rID = QString();
+                defaultSize = QString();
+
+                attrs = reader.attributes();
+                if (attrs.hasAttribute(QLatin1String("Requires")))
+                    requires = attrs.value(QLatin1String("Requires")).toString();
+            }
+            else if (reader.name() == QLatin1String("oleObject")) {
+                attrs = reader.attributes();
+                if (attrs.hasAttribute(QLatin1String("progId")))
+                    progID = attrs.value(QLatin1String("progId")).toString();
+                if (attrs.hasAttribute(QLatin1String("shapeId")))
+                    shapeID = attrs.value(QLatin1String("shapeId")).toString();
+                if (attrs.hasAttribute(QLatin1String("r:id")))
+                    rID = attrs.value(QLatin1String("r:id")).toString();
+            }
+            else if (reader.name() == QLatin1String("objectPr")) {
+                attrs = reader.attributes();
+                if (attrs.hasAttribute(QLatin1String("defaultSize")))
+                    defaultSize = attrs.value(QLatin1String("defaultSize")).toString();
+                if (attrs.hasAttribute(QLatin1String("r:id")))
+                    prID = attrs.value(QLatin1String("r:id")).toString();
+            }
+            else if (reader.name() == QLatin1String("anchor")) {
+                QString suffix = QString("");
+                QString target = QString("");
+                QString prFname = QString("");
+                if (rID.size() > 0) {
+                    XlsxRelationship rel = relationships->getRelationshipById(rID);
+                    target = rel.target;
+                    suffix = target.mid(target.lastIndexOf('.')+1);
+                }
+                if (prID.size() > 0) {
+                    XlsxRelationship rel = relationships->getRelationshipById(prID);
+                    prFname = rel.target;
+                }
+
+                QSharedPointer<OleObject> oo = QSharedPointer<OleObject>(
+                                        new OleObject(
+                                    target,
+                                    suffix,
+                                    progID,
+                                    requires,
+                                    shapeID));
+
+                if (prFname.size() > 0) {
+                    QFileInfo prfi(prFname);
+                    QList<QSharedPointer<MediaFile>> mediaFiles = workbook->mediaFiles();
+                    int pridx = mediaFiles.size();
+                    while(pridx-- > 0) {
+                        QSharedPointer<MediaFile> mf = mediaFiles[pridx];
+                        QFileInfo mfi(mf->fileName());
+                        if (mfi.fileName() == prfi.fileName()) {
+                            oo->setPrMediaFile(mf);
+                            break;
+                        }
+                    }
+                    if (pridx < 0) {
+                        oo->setPrMediaFile(
+                                    QSharedPointer<MediaFile>(new MediaFile(prFname)));
+                        workbook->addMediaFile(oo->prMediaFile(), true);
+                    }
+                }
+
+                QSharedPointer<Anchor> a = QSharedPointer<Anchor>(new Anchor());
+                a->loadFromXml(reader);
+                oo->setAnchor(a);
+
+                addOleObjectFile(oo, true);
+            }
+        }
+    }
+}
+
+QList <QSharedPointer<XlsxColumnInfo> > WorksheetPrivate::getColumnInfoList(int colFirst, int colLast)
 {
     QList<QSharedPointer<XlsxColumnInfo>> columnsInfoList;
     if (isColumnRangeValid(colFirst, colLast)) {
@@ -2381,6 +2686,8 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 d->loadXmlColumnsInfo(reader);
             } else if (reader.name() == QLatin1String("sheetData")) {
                 d->loadXmlSheetData(reader);
+            } else if (reader.name() == QLatin1String("oleObjects")) {
+                d->loadXmlOleObjects(reader);
             } else if (reader.name() == QLatin1String("mergeCells")) {
                 d->loadXmlMergeCells(reader);
             } else if (reader.name() == QLatin1String("dataValidations")) {
