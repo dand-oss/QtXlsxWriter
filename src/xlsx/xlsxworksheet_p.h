@@ -49,6 +49,7 @@
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
+class OleObject;
 
 namespace QXlsx {
 
@@ -174,6 +175,7 @@ public:
     void saveXmlHyperlinks(QXmlStreamWriter &writer) const;
     void saveXmlDrawings(QXmlStreamWriter &writer) const;
     void saveXmlDataValidations(QXmlStreamWriter &writer) const;
+    void saveXmlOleObjects(QXmlStreamWriter &writer) const;
     int rowPixelsSize(int row) const;
     int colPixelsSize(int col) const;
 
@@ -184,6 +186,8 @@ public:
     void loadXmlSheetFormatProps(QXmlStreamReader &reader);
     void loadXmlSheetViews(QXmlStreamReader &reader);
     void loadXmlHyperlinks(QXmlStreamReader &reader);
+    void loadXmlOleObjects(QXmlStreamReader &reader);
+    void loadXmlOleObject(QXmlStreamReader &reader);
 
     QList<QSharedPointer<XlsxRowInfo>> getRowInfoList(int rowFirst, int rowLast);
     QList<QSharedPointer<XlsxColumnInfo>> getColumnInfoList(int colFirst, int colLast);
@@ -203,6 +207,9 @@ public:
     QList<DataValidation> dataValidationsList;
     QList<ConditionalFormatting> conditionalFormattingList;
     QMap<int, CellFormula> sharedFormulaMap;
+
+    void addOleObjectFile(QSharedPointer<OleObject> obj, bool force=false);
+    QList<QSharedPointer<OleObject> > oleObjectFiles() const;
 
     CellRange dimension;
     int previous_row;
@@ -234,6 +241,7 @@ public:
 
 private:
     static double calculateColWidth(int characters);
+    QList<QSharedPointer<OleObject>> m_oleObjectFiles;
 };
 }
 #endif // XLSXWORKSHEET_P_H

@@ -72,12 +72,20 @@ namespace QXlsx {
 
 // anchor
 
+DrawingAnchor::DrawingAnchor(DrawingAnchor::ObjectType objectType)
+    : m_objectType(objectType)
+{
+    m_drawing = NULL;
+}
+
 DrawingAnchor::DrawingAnchor(Drawing *drawing, ObjectType objectType)
     : m_drawing(drawing)
     , m_objectType(objectType)
 {
     m_drawing->anchors.append(this);
-    m_id = m_drawing->anchors.size(); // must be unique in one drawing{x}.xml file.
+    m_id = m_drawing->anchors.size(); //must be unique in one drawing{x}.xml file.
+    m_drawing->shapes.append(&(this->m_shape));
+    m_shape.id = QString::number(m_drawing->shapes.size());
 }
 
 DrawingAnchor::~DrawingAnchor()
@@ -124,6 +132,11 @@ void DrawingAnchor::setObjectGraphicFrame(QSharedPointer<Chart> chart)
     m_drawing->workbook->addChartFile(chart);
 
     m_objectType = GraphicFrame;
+}
+
+XlsxShape DrawingAnchor::shape() const
+{
+    return m_shape;
 }
 
 QPoint DrawingAnchor::loadXmlPos(QXmlStreamReader &reader)
@@ -287,7 +300,39 @@ void DrawingAnchor::loadXmlObjectPicture(QXmlStreamReader &reader)
 
 void DrawingAnchor::loadXmlObjectShape(QXmlStreamReader &reader)
 {
-    Q_UNUSED(reader)
+    Q_ASSERT(reader.name() == QLatin1String("sp"));
+
+    while (!reader.atEnd()) {
+        reader.readNextStartElement();
+        if (reader.tokenType() == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("cNvPr")) {
+                // element: cNvPr   id="1026" name="Object 2" hidden="1"
+                    // id: drawing element id
+                    // required attribs: id, name
+                    // optional attribs: descr, hidden, title
+                m_shape.id = reader.attributes().value(QLatin1String("id")).toString();
+                m_shape.name = reader.attributes().value(QLatin1String("name")).toString();
+                // element: cNvSpPr
+            }
+        } else if (reader.tokenType() == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("spPr")) {
+                // can be ignored for now???
+            }
+        } else if (reader.tokenType() == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("style")) {
+                // can be ignored for now???
+            }
+        } else if (reader.tokenType() == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("txBody")) {
+                // can be ignored for now???
+            }
+        } else if (reader.tokenType() == QXmlStreamReader::EndElement
+                   && reader.name() == QLatin1String("sp")) {
+            break;
+        }
+    }
+
+    return;
 }
 
 void DrawingAnchor::saveXmlPos(QXmlStreamWriter &writer, const QPoint &pos) const
@@ -425,7 +470,21 @@ void DrawingAnchor::saveXmlObjectPicture(QXmlStreamWriter &writer) const
     writer.writeEndElement(); // xdr:pic
 }
 
-void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const { Q_UNUSED(writer) }
+void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const
+{
+    writer.writeStartElement(QStringLiteral("xdr:sp"));
+    writer.writeAttribute(QStringLiteral("macro"), QStringLiteral(""));
+    writer.writeAttribute(QStringLiteral("textlink"), QStringLiteral(""));
+    writer.writeStartElement(QStringLiteral("xdr:nvSpPr"));
+    writer.writeStartElement(QStringLiteral("xdr:cNvPr"));
+    writer.writeAttribute(QStringLiteral("id"), m_shape.id);
+    writer.writeAttribute(QStringLiteral("name"), m_shape.name);
+    writer.writeEndElement(); // xdr:cNvPr
+    writer.writeEmptyElement(QStringLiteral("xdr:cNvSpPr"));
+    writer.writeEndElement(); // xdr:nvSpPr
+    writer.writeEmptyElement(QStringLiteral("xdr:spPr"));
+    writer.writeEndElement(); // xdr:sp
+}
 
 // absolute anchor
 

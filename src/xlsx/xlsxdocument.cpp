@@ -38,6 +38,7 @@
 #include "xlsxworkbook_p.h"
 #include "xlsxdrawing_p.h"
 #include "xlsxmediafile_p.h"
+#include "xlsxoleobject.h"
 #include "xlsxchart.h"
 #include "xlsxzipreader_p.h"
 #include "xlsxzipwriter_p.h"
@@ -65,6 +66,9 @@ QT_BEGIN_NAMESPACE_XLSX
         | |____ core.xml
         |
         |____ xl
+        | |____ embeddings
+        | | |____ worddoc.docx
+        | |
         | |____ workbook.xml
         | |____ worksheets
         | | |____ sheet1.xml
@@ -227,13 +231,28 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
         cf->loadFromXmlData(zipReader.fileData(cf->filePath()));
     }
 
-    // load media files
-    QList<QSharedPointer<MediaFile>> mediaFileToLoad = workbook->mediaFiles();
+    //load media files
+    QList<QSharedPointer<MediaFile> > mediaFileToLoad = workbook->mediaFiles();
+    int msz = mediaFileToLoad.size();
     for (int i = 0; i < mediaFileToLoad.size(); ++i) {
         QSharedPointer<MediaFile> mf = mediaFileToLoad[i];
-        const QString path = mf->fileName();
-        const QString suffix = path.mid(path.lastIndexOf(QLatin1Char('.')) + 1);
+        const QFileInfo fi(mf->fileName());
+        const QString path = QStringLiteral("xl/media/%1").arg(fi.fileName());
+        const QString suffix = path.mid(path.lastIndexOf(QLatin1Char('.'))+1);
         mf->set(zipReader.fileData(path), suffix);
+    }
+
+    //load ole object files
+    for (int i=0; i<workbook->sheetCount(); ++i) {
+        QXlsx::Worksheet* sheet =
+                reinterpret_cast<QXlsx::Worksheet*>(workbook->sheet(i));
+        QList<QSharedPointer<OleObject> > oleFileToLoad = sheet->oleObjectFiles();
+        for (int i=0; i<oleFileToLoad.size(); ++i) {
+            QSharedPointer<OleObject> obj = oleFileToLoad[i];
+            const QFileInfo fi(obj->fileName());
+            const QString path = QStringLiteral("xl/embeddings/%1").arg(fi.fileName());
+            obj->setContents(zipReader.fileData(path));
+        }
     }
 
     return true;
@@ -357,8 +376,23 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
         if (!mf->mimeType().isEmpty())
             contentTypes->addDefault(mf->suffix(), mf->mimeType());
 
-        zipWriter.addFile(QStringLiteral("xl/media/image%1.%2").arg(i + 1).arg(mf->suffix()),
-                          mf->contents());
+        QFileInfo media_fi(mf->fileName());
+        zipWriter.addFile(QStringLiteral("xl/media/%1").arg(media_fi.fileName()), mf->contents());
+    }
+
+    // save ole object files
+    for (int i=0; i<worksheets.size(); ++i) {
+        Worksheet& sheet = dynamic_cast<Worksheet&>(*(worksheets[i]));
+        QList<QSharedPointer<OleObject> > oleFiles = sheet.oleObjectFiles();
+        for (int i=0; i< oleFiles.size(); ++i) {
+            QSharedPointer<OleObject> obj = oleFiles[i];
+            QFileInfo fi(obj->fileName());
+            if (!obj->mimeType().isEmpty()) {
+                contentTypes->addDefault(obj->suffix(), obj->mimeType());
+                contentTypes->addOverride(QStringLiteral("/xl/embeddings/%1").arg(obj->suffix()), obj->mimeType());
+            }
+            zipWriter.addFile(QStringLiteral("xl/embeddings/%1").arg(fi.fileName()), obj->contents());
+        }
     }
 
     // save root .rels xml file
@@ -490,6 +524,25 @@ bool Document::insertObj(int row, int col,
     if (Worksheet *sheet = currentWorksheet())
         return sheet->insertObj(row, col, width, height,
                                 filename, mimeType, objType);
+    return false;
+}
+
+bool Document::insertOleObject(int row,
+                               int col,
+                               int width,
+                               int height,
+                               const QString &filename,
+                               const QString &previewImageFilename,
+                               const QString &mimeType,
+                               const QString &previewMimeType,
+                               const QString& progID,
+                               const QString& requires)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->insertOleObject(row, col, width, height,
+                                filename, previewImageFilename,
+                                mimeType, previewMimeType,
+                                progID, requires);
     return false;
 }
 

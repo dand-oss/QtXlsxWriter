@@ -42,7 +42,7 @@ class Drawing;
 class MediaFile;
 class Chart;
 
-// Helper class
+//Helper classes
 struct XlsxMarker
 {
     XlsxMarker() {}
@@ -61,11 +61,24 @@ struct XlsxMarker
     QSize offset;
 };
 
+//Shape
+struct XlsxShape
+{
+    XlsxShape(){}
+    XlsxShape(int _id, QString _name) :
+        id(_id), name(_name){}
+
+    QString id;
+    QString name;
+};
+
+
 class DrawingAnchor
 {
 public:
     enum ObjectType { GraphicFrame, Shape, GroupShape, ConnectionShape, Picture, Unknown };
 
+    DrawingAnchor(ObjectType objectType);
     DrawingAnchor(Drawing *drawing, ObjectType objectType);
     virtual ~DrawingAnchor();
     void setObjectFile(const QString &filename,
@@ -73,9 +86,12 @@ public:
                        const ObjectType objType);
     void setObjectPicture(const QImage &img);
     void setObjectGraphicFrame(QSharedPointer<Chart> chart);
+    QSharedPointer<MediaFile> picture() { return m_pictureFile; }
 
     virtual bool loadFromXml(QXmlStreamReader &reader) = 0;
     virtual void saveToXml(QXmlStreamWriter &writer) const = 0;
+
+    XlsxShape shape() const;
 
 protected:
     QPoint loadXmlPos(QXmlStreamReader &reader);
@@ -103,6 +119,7 @@ protected:
     ObjectType m_objectType;
     QSharedPointer<MediaFile> m_pictureFile;
     QSharedPointer<Chart> m_chartFile;
+    XlsxShape m_shape;
 
     int m_id;
 };
