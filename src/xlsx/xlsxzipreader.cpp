@@ -48,8 +48,8 @@ ZipReader::~ZipReader()
 
 void ZipReader::init()
 {
-    auto allFiles = m_reader->fileInfoList();
-    foreach (const QZipReader::FileInfo &fi, allFiles) {
+    const auto& allFiles = m_reader->fileInfoList();
+    for (const auto &fi : allFiles) {
         if (fi.isFile)
             m_filePaths.append(fi.filePath);
     }
