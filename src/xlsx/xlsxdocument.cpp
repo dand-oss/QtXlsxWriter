@@ -375,9 +375,9 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
         QSharedPointer<MediaFile> mf = workbook->mediaFiles()[i];
         if (!mf->mimeType().isEmpty())
             contentTypes->addDefault(mf->suffix(), mf->mimeType());
-
-        QFileInfo media_fi(mf->fileName());
-        zipWriter.addFile(QStringLiteral("xl/media/%1").arg(media_fi.fileName()), mf->contents());
+        zipWriter.addFile(QStringLiteral("xl/media/image%1.%2")
+                          .arg(mf->index()+1).arg(mf->suffix()),
+                          mf->contents());
     }
 
     // save ole object files
