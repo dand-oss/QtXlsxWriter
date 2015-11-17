@@ -1618,13 +1618,10 @@ void WorksheetPrivate::saveXmlOleObjects(QXmlStreamWriter &writer) const
         if (media && media->fileName().size() > 0) {
             media->setIndex(relationships->count());
             obj->setPrIndex(media->index());
-            QFileInfo media_fi(media->fileName());
             relationships->addDocumentRelationship(QStringLiteral("/image"),
-                                                   QStringLiteral("../media/%1")
-                                                   .arg(media_fi.fileName()));
-                                                   //QStringLiteral("../media/image%1.%2")
-                                                   //.arg(media->index()+1)
-                                                   //.arg(media->suffix()));
+                                                   QStringLiteral("../media/image%1.%2")
+                                                   .arg(media->index()+1)
+                                                   .arg(media->suffix()));
         }
 
         writer.writeStartElement(QStringLiteral("mc:AlternateContent"));
