@@ -38,7 +38,7 @@ class QXmlStreamWriter;
 
 namespace QXlsx {
 
-class XlsxMarker;
+struct XlsxMarker;
 
 class Anchor
 {
