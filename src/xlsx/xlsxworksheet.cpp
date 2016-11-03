@@ -1610,19 +1610,19 @@ void WorksheetPrivate::saveXmlOleObjects(QXmlStreamWriter &writer) const
         QSharedPointer<OleObject> obj = oleFiles[i];
 
         QFileInfo fi(obj->fileName());
-        obj->setIndex(relationships->count()+1);
         relationships->addWorksheetRelationship(QStringLiteral("/package"),
                                                 QStringLiteral("../embeddings/%1")
                                                 .arg(fi.fileName()));
+        obj->setIndex(relationships->count());
 
         QSharedPointer<MediaFile> media = obj->prMediaFile();
         if (media && media->fileName().size() > 0) {
             media->setIndex(mediaFiles.size());
-            obj->setPrIndex(media->index());
             relationships->addDocumentRelationship(QStringLiteral("/image"),
                                                    QStringLiteral("../media/image%1.%2")
                                                    .arg(media->index()+1)
                                                    .arg(media->suffix()));
+            obj->setPrIndex(relationships->count());
         }
 
         writer.writeStartElement(QStringLiteral("mc:AlternateContent"));
@@ -1649,7 +1649,7 @@ void WorksheetPrivate::saveXmlOleObjects(QXmlStreamWriter &writer) const
         writer.writeAttribute(QStringLiteral("defaultSize"), QStringLiteral("0"));
         if (media->isIndexValid()) {
             writer.writeAttribute(QStringLiteral("r:id"),
-                                  QStringLiteral("rId%1").arg(media->index()+1));
+                                  QStringLiteral("rId%1").arg(obj->prIndex()));
         }
 
         // write the anchor
