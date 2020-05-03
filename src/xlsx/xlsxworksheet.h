@@ -115,7 +115,7 @@ public:
                    const QString& mimeType,
                    const QString &previewMimeType,
                    const QString& progID,
-                   const QString& requires);
+                   const QString& require);
     QList<QSharedPointer<OleObject> > oleObjectFiles();
 
     bool insertImage(int row, int column, const QImage &image);

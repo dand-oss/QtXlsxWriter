@@ -1118,7 +1118,7 @@ bool Worksheet::insertOleObject(int row,
                                 const QString &mimeType,
                                 const QString &previewMimeType,
                                 const QString &progID,
-                                const QString &requires)
+                                const QString &require)
 {
     Q_D(Worksheet);
 
@@ -1152,7 +1152,7 @@ bool Worksheet::insertOleObject(int row,
                         filename,
                         suffix,
                         progID,
-                        requires,
+                        require,
                         shapeID));
     oo->setMimeType(mimeType);
 
@@ -1631,8 +1631,8 @@ void WorksheetPrivate::saveXmlOleObjects(QXmlStreamWriter &writer) const
                     QStringLiteral("http://schemas.openxmlformats.org/markup-compatibility/2006"));
 
         writer.writeStartElement(QStringLiteral("mc:Choice"));
-        if (obj->requires().size() > 0)
-            writer.writeAttribute(QStringLiteral("Requires"), obj->requires());
+        if (obj->require().size() > 0)
+            writer.writeAttribute(QStringLiteral("Requires"), obj->require());
 
         writer.writeStartElement(QStringLiteral("oleObject"));
         if (obj->progID().size() > 0)
@@ -2535,14 +2535,14 @@ void WorksheetPrivate::loadXmlOleObject(QXmlStreamReader &reader)
 {
     Q_ASSERT(reader.name() == QLatin1String("AlternateContent"));
 
-    QString requires, progID, shapeID, rID, defaultSize, prID;
+    QString require, progID, shapeID, rID, defaultSize, prID;
     QXmlStreamAttributes attrs;
 
     while (!reader.atEnd() && !(reader.name() == QLatin1String("oleObjects")
             && reader.tokenType() == QXmlStreamReader::EndElement)) {
         if (reader.readNextStartElement()) {
             if (reader.name() == QLatin1String("Choice")) {
-                requires = QString();
+                require = QString();
                 progID = QString();
                 shapeID = QString();
                 rID = QString();
@@ -2550,7 +2550,7 @@ void WorksheetPrivate::loadXmlOleObject(QXmlStreamReader &reader)
 
                 attrs = reader.attributes();
                 if (attrs.hasAttribute(QLatin1String("Requires")))
-                    requires = attrs.value(QLatin1String("Requires")).toString();
+                    require = attrs.value(QLatin1String("Requires")).toString();
             }
             else if (reader.name() == QLatin1String("oleObject")) {
                 attrs = reader.attributes();
@@ -2587,7 +2587,7 @@ void WorksheetPrivate::loadXmlOleObject(QXmlStreamReader &reader)
                                     target,
                                     suffix,
                                     progID,
-                                    requires,
+                                    require,
                                     shapeID));
 
                 if (prFname.size() > 0) {

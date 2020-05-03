@@ -31,12 +31,12 @@ namespace QXlsx {
 OleObject::OleObject(const QString &fileName,
                      const QString &suffix,
                      const QString &progID,
-                     const QString &requires,
+                     const QString &require,
                      const QString &shapeID)
     : m_fileName(fileName)
     , m_suffix(suffix)
     , m_progID(progID)
-    , m_requires(requires)
+    , m_require(require)
     , m_shapeID(shapeID)
     , m_index(0)
     , m_indexValid(false)
@@ -49,13 +49,13 @@ OleObject::OleObject(const QString &fileName,
 void OleObject::set(const QString &fileName,
                     const QString &suffix,
                     const QString &progID,
-                    const QString &requires,
+                    const QString &require,
                     const QString &shapeID)
 {
     m_fileName = fileName;
     m_suffix = suffix;
     m_progID = progID;
-    m_requires = requires;
+    m_require = require;
     m_shapeID = shapeID;
     m_hashKey = QCryptographicHash::hash(m_contents, QCryptographicHash::Md5);
     m_indexValid = false;
@@ -106,9 +106,9 @@ void OleObject::setRequires(const QString &req)
     m_progID = req;
 }
 
-QString OleObject::requires() const
+QString OleObject::require() const
 {
-    return m_requires;
+    return m_require;
 }
 
 void OleObject::setShapeID(const QString &id)

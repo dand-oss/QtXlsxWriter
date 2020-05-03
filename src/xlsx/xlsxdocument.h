@@ -73,7 +73,7 @@ public:
                    const QString& mimeType,
                    const QString &previewMimeType,
                    const QString& progID,
-                   const QString& requires);
+                   const QString& require);
     bool insertImage(int row, int col, const QImage &image);
     Chart *insertChart(int row, int col, const QSize &size);
     bool mergeCells(const CellRange &range, const Format &format = Format());

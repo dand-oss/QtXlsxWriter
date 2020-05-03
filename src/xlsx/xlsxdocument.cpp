@@ -536,13 +536,13 @@ bool Document::insertOleObject(int row,
                                const QString &mimeType,
                                const QString &previewMimeType,
                                const QString& progID,
-                               const QString& requires)
+                               const QString& require)
 {
     if (Worksheet *sheet = currentWorksheet())
         return sheet->insertOleObject(row, col, width, height,
                                 filename, previewImageFilename,
                                 mimeType, previewMimeType,
-                                progID, requires);
+                                progID, require);
     return false;
 }
 
