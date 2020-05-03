@@ -39,13 +39,13 @@ public:
     OleObject(const QString &fileName,
               const QString &suffix=QString(),
               const QString &progID=QString(),
-              const QString &requires=QString(),
+              const QString &require=QString(),
               const QString &shapeID=QString());
 
     void set(const QString &fileName,
              const QString &suffix=QString(),
              const QString &progID=QString(),
-             const QString &requires=QString(),
+             const QString &require=QString(),
              const QString &shapeID=QString());
 
     bool isIndexValid() const;
@@ -66,7 +66,7 @@ public:
     QString progID() const;
 
     void setRequires(const QString& req);
-    QString requires() const;
+    QString require() const;
 
     void setShapeID(const QString& id);
     QString shapeID() const;
@@ -90,7 +90,7 @@ private:
     QString m_suffix;
     QString m_progID; // program ID
     QString m_mimeType;
-    QString m_requires;
+    QString m_require;
     QString m_shapeID;
 
     int m_index;
