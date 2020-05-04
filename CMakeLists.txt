@@ -1,10 +1,18 @@
 cmake_minimum_required(VERSION 3.0)
 project(xlsx CXX)
 
+###############
+# ASI default settings
+list(APPEND CMAKE_MODULE_PATH "$ENV{ASV_CMAKE}")
+include(asv_cmake_defaults)
+asv_cmake_defaults( )
+###############
+
 set(libname xlsx)
 
 message(STATUS ${CMAKE_CURRENT_LIST_FILE})
 
+set(QT_LIBINFIX "ASV")
 find_package(Qt5 CONFIG REQUIRED COMPONENTS Gui)
 set(CMAKE_AUTOMOC ON)
 
