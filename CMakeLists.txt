@@ -1,11 +1,24 @@
 cmake_minimum_required(VERSION 3.30)
 project(xlsx CXX)
 
+###############
+# ASI default settings
+list(APPEND CMAKE_MODULE_PATH "$ENV{ASV_CMAKE}")
+include(asv_cmake_defaults)
+asv_cmake_defaults( )
+###############
+
 set(libname xlsx)
 
 message(STATUS ${CMAKE_CURRENT_LIST_FILE})
 
-find_package(Qt5 CONFIG REQUIRED COMPONENTS Gui)
+find_package(Qt5 CONFIG REQUIRED
+    PATHS ${AQTDIR} NO_DEFAULT_PATH
+    COMPONENTS
+    Gui)
+asv_print_package_properties(
+    Qt5::Gui
+    )
 
 # get header files that are not *_p.h
 file(GLOB tmp_hdr ${CMAKE_CURRENT_SOURCE_DIR}/src/xlsx/*.h)
