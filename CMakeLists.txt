@@ -12,12 +12,12 @@ set(libname xlsx)
 
 message(STATUS ${CMAKE_CURRENT_LIST_FILE})
 
-find_package(Qt5 CONFIG REQUIRED
+find_package(Qt6 CONFIG REQUIRED
     PATHS ${AQTDIR} NO_DEFAULT_PATH
     COMPONENTS
     Gui)
 asv_print_package_properties(
-    Qt5::Gui
+    Qt::Gui
     )
 
 # get header files that are not *_p.h
@@ -30,7 +30,7 @@ foreach(hdr_file ${tmp_hdr})
 endforeach()
 
 add_library(${libname} SHARED)
-target_link_libraries(${libname} Qt5::GuiPrivate)
+target_link_libraries(${libname} Qt::GuiPrivate)
 set_target_properties(${libname} PROPERTIES AUTOMOC ON)
 set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 if (UNIX)
