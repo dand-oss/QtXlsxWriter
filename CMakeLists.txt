@@ -14,7 +14,7 @@ message(STATUS ${CMAKE_CURRENT_LIST_FILE})
 
 list(APPEND CMAKE_PREFIX_PATH ${AQTDIR})
 set(QT_LIBINFIX "ASV")
-find_package(Qt5 CONFIG REQUIRED COMPONENTS Gui)
+find_package(Qt6 CONFIG REQUIRED COMPONENTS Gui)
 
 # get header files that are not *_p.h
 file(GLOB tmp_hdr ${CMAKE_CURRENT_SOURCE_DIR}/src/xlsx/*.h)
@@ -26,7 +26,7 @@ foreach(hdr_file ${tmp_hdr})
 endforeach()
 
 add_library(${libname} SHARED)
-target_link_libraries(${libname} Qt5::GuiPrivate)
+target_link_libraries(${libname} Qt::GuiPrivate)
 set_target_properties(${libname} PROPERTIES AUTOMOC ON)
 set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 if (UNIX)
