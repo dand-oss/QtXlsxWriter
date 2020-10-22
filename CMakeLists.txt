@@ -8,28 +8,6 @@ message(STATUS ${CMAKE_CURRENT_LIST_FILE})
 find_package(Qt5 CONFIG REQUIRED COMPONENTS Gui)
 set(CMAKE_AUTOMOC ON)
 
-set(qxlsx_includes
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/xlsx
-    ${Qt5Gui_INCLUDE_DIRS}
-    )
-
-# come up with private incudes
-# https://bugreports.qt.io/browse/QTBUG-37417
-foreach(module Gui)
-	set(qt_module Qt${module})
-	set(qt5_module Qt5${module})
-	find_package(${qt5_module})
-	if("${${qt5_module}_PRIVATE_INCLUDE_DIRS}" STREQUAL "")
-		foreach(base_dir ${${qt5_module}_INCLUDE_DIRS})
-			if("${base_dir}" MATCHES "/${qt_module}\$")
-				list(APPEND ${qt5_module}_PRIVATE_INCLUDE_DIRS "${base_dir}/${${qt5_module}_VERSION}/${qt_module}")
-			endif()
-		endforeach()
-	endif()
-        list(APPEND qxlsx_includes ${${qt5_module}_PRIVATE_INCLUDE_DIRS})
-endforeach()
-message("INC=${qxlsx_includes}")
-
 # get header files that are not *_p.h
 file(GLOB tmp_hdr ${CMAKE_CURRENT_SOURCE_DIR}/src/xlsx/*.h)
 foreach(hdr_file ${tmp_hdr})
@@ -40,8 +18,7 @@ foreach(hdr_file ${tmp_hdr})
 endforeach()
 
 add_library(${libname} SHARED)
-target_link_libraries(${libname} Qt5::Gui)
-target_include_directories(${libname} PRIVATE ${qxlsx_includes})
+target_link_libraries(${libname} Qt5::GuiPrivate)
 set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 if (UNIX)
     # force linker to resolve all deps
