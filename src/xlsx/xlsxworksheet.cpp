@@ -252,6 +252,40 @@ Worksheet *Worksheet::copy(const QString &distName, int distId) const
 //    sheet_d->colsInfoHelper = d->colsInfoHelper;
 //    sheet_d->dataValidationsList = d->dataValidationsList;
 //    sheet_d->conditionalFormattingList = d->conditionalFormattingList;
+    
+         sheet_d->colsInfo = d->colsInfo;
+     sheet_d->colsInfoHelper = d->colsInfoHelper;
+//    sheet_d->dataValidationsList = d->dataValidationsList;
+//    sheet_d->conditionalFormattingList = d->conditionalFormattingList;
+    // pagesetup and print settings add by liufeijin 20181028, liufeijin
+    sheet_d->PpaperSize =d->PpaperSize;
+    sheet_d->Pscale =d->Pscale;
+    sheet_d->PfirstPageNumber =d->PfirstPageNumber;
+    sheet_d->Porientation =d->Porientation;
+    sheet_d->PuseFirstPageNumber =d->PuseFirstPageNumber;
+    sheet_d->PhorizontalDpi =d->PhorizontalDpi;
+    sheet_d->PverticalDpi =d->PverticalDpi;
+    sheet_d->Prid =d->Prid;
+    sheet_d->Pcopies =d->Pcopies;
+    sheet_d->PMheader =d->PMheader;
+    sheet_d->PMfooter =d-> PMfooter;
+    sheet_d->PMtop =d->PMtop;
+    sheet_d->PMbotton=d->PMbotton;
+    sheet_d->PMleft=d->PMleft;
+    sheet_d->PMright=d->PMright;
+    sheet_d->MoodFooter=d->MoodFooter;
+    sheet_d->ModdHeader=d->ModdHeader;
+    sheet_d->MoodalignWithMargins=d->MoodalignWithMargins;
+    sheet_d->drawing=d->drawing;
+
+    sheet_d->VFitTopage=d->VFitTopage;
+    sheet_d->VSheetView=d->VSheetView;
+    sheet_d->VTopLeftCell=d->VTopLeftCell;
+    sheet_d->VZoomScaleNormal=d->VZoomScaleNormal;
+    sheet_d->VWorkbookViewId=d->VWorkbookViewId;
+    sheet_d->Vsqref=d->Vsqref;
+    sheet_d->Vactive=d->Vactive;
+
 
     return sheet;
 }
