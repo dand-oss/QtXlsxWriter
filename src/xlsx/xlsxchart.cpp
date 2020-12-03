@@ -265,29 +265,18 @@ bool ChartPrivate::loadXmlPlotArea(QXmlStreamReader &reader)
 
 bool ChartPrivate::loadXmlXxxChart(QXmlStreamReader &reader)
 {
-    QStringRef name = reader.name();
-    if (name == QLatin1String("pieChart"))
-        chartType = Chart::CT_Pie;
-    else if (name == QLatin1String("pie3DChart"))
-        chartType = Chart::CT_Pie3D;
-    else if (name == QLatin1String("barChart"))
-        chartType = Chart::CT_Bar;
-    else if (name == QLatin1String("bar3DChart"))
-        chartType = Chart::CT_Bar3D;
-    else if (name == QLatin1String("lineChart"))
-        chartType = Chart::CT_Line;
-    else if (name == QLatin1String("line3DChart"))
-        chartType = Chart::CT_Line3D;
-    else if (name == QLatin1String("scatterChart"))
-        chartType = Chart::CT_Scatter;
-    else if (name == QLatin1String("areaChart"))
-        chartType = Chart::CT_Area;
-    else if (name == QLatin1String("area3DChart"))
-        chartType = Chart::CT_Area3D;
-    else if (name == QLatin1String("doughnutChart"))
-        chartType = Chart::CT_Doughnut;
-    else
-        qDebug() << "Cann't load chart: " << name;
+    const auto& name = reader.name();
+    if (name == QLatin1String("pieChart")) chartType = Chart::CT_Pie;
+    else if (name == QLatin1String("pie3DChart")) chartType = Chart::CT_Pie3D;
+    else if (name == QLatin1String("barChart")) chartType = Chart::CT_Bar;
+    else if (name == QLatin1String("bar3DChart")) chartType = Chart::CT_Bar3D;
+    else if (name == QLatin1String("lineChart")) chartType = Chart::CT_Line;
+    else if (name == QLatin1String("line3DChart")) chartType = Chart::CT_Line3D;
+    else if (name == QLatin1String("scatterChart")) chartType = Chart::CT_Scatter;
+    else if (name == QLatin1String("areaChart")) chartType = Chart::CT_Area;
+    else if (name == QLatin1String("area3DChart")) chartType = Chart::CT_Area3D;
+    else if (name == QLatin1String("doughnutChart")) chartType = Chart::CT_Doughnut;
+    else qDebug()<<"Cann't load chart: "<<name;
 
     while (!reader.atEnd()) {
         reader.readNextStartElement();
@@ -314,7 +303,7 @@ bool ChartPrivate::loadXmlSer(QXmlStreamReader &reader)
            && !(reader.tokenType() == QXmlStreamReader::EndElement
                 && reader.name() == QLatin1String("ser"))) {
         if (reader.readNextStartElement()) {
-            QStringRef name = reader.name();
+            const auto& name = reader.name();
             if (name == QLatin1String("cat") || name == QLatin1String("xVal")) {
                 while (!reader.atEnd()
                        && !(reader.tokenType() == QXmlStreamReader::EndElement
@@ -613,8 +602,8 @@ bool ChartPrivate::loadXmlAxis(QXmlStreamReader &reader)
         if (reader.tokenType() == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("axPos")) {
                 QXmlStreamAttributes attrs = reader.attributes();
-                QStringRef pos = attrs.value(QLatin1String("val"));
-                if (pos == QLatin1String("l"))
+                const auto& pos = attrs.value(QLatin1String("val"));
+                if (pos==QLatin1String("l"))
                     axis->axisPos = XlsxAxis::Left;
                 else if (pos == QLatin1String("r"))
                     axis->axisPos = XlsxAxis::Right;

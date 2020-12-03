@@ -149,28 +149,28 @@ bool DocPropsCore::loadFromXmlFile(QIODevice *device)
     const QString dcterms = QStringLiteral("http://purl.org/dc/terms/");
 
     while (!reader.atEnd()) {
-        QXmlStreamReader::TokenType token = reader.readNext();
-        if (token == QXmlStreamReader::StartElement) {
-            const QStringRef nsUri = reader.namespaceUri();
-            const QStringRef name = reader.name();
-            if (name == QStringLiteral("subject") && nsUri == dc) {
-                setProperty(QStringLiteral("subject"), reader.readElementText());
-            } else if (name == QStringLiteral("title") && nsUri == dc) {
-                setProperty(QStringLiteral("title"), reader.readElementText());
-            } else if (name == QStringLiteral("creator") && nsUri == dc) {
-                setProperty(QStringLiteral("creator"), reader.readElementText());
-            } else if (name == QStringLiteral("description") && nsUri == dc) {
-                setProperty(QStringLiteral("description"), reader.readElementText());
-            } else if (name == QStringLiteral("keywords") && nsUri == cp) {
-                setProperty(QStringLiteral("keywords"), reader.readElementText());
-            } else if (name == QStringLiteral("created") && nsUri == dcterms) {
-                setProperty(QStringLiteral("created"), reader.readElementText());
-            } else if (name == QStringLiteral("category") && nsUri == cp) {
-                setProperty(QStringLiteral("category"), reader.readElementText());
-            } else if (name == QStringLiteral("contentStatus") && nsUri == cp) {
-                setProperty(QStringLiteral("status"), reader.readElementText());
-            }
-        }
+         QXmlStreamReader::TokenType token = reader.readNext();
+         if (token == QXmlStreamReader::StartElement) {
+             const auto& nsUri = reader.namespaceUri();
+             const auto& name = reader.name();
+             if (name == QStringLiteral("subject") && nsUri == dc) {
+                 setProperty(QStringLiteral("subject"), reader.readElementText());
+             } else if (name == QStringLiteral("title") && nsUri == dc) {
+                 setProperty(QStringLiteral("title"), reader.readElementText());
+             } else if (name == QStringLiteral("creator") && nsUri == dc) {
+                 setProperty(QStringLiteral("creator"), reader.readElementText());
+             } else if (name == QStringLiteral("description") && nsUri == dc) {
+                 setProperty(QStringLiteral("description"), reader.readElementText());
+             } else if (name == QStringLiteral("keywords") && nsUri == cp) {
+                 setProperty(QStringLiteral("keywords"), reader.readElementText());
+             } else if (name == QStringLiteral("created") && nsUri == dcterms) {
+                 setProperty(QStringLiteral("created"), reader.readElementText());
+             } else if (name == QStringLiteral("category") && nsUri == cp) {
+                 setProperty(QStringLiteral("category"), reader.readElementText());
+             } else if (name == QStringLiteral("contentStatus") && nsUri == cp) {
+                 setProperty(QStringLiteral("status"), reader.readElementText());
+             }
+         }
 
         if (reader.hasError()) {
             qDebug() << "Error when read doc props core file." << reader.errorString();

@@ -582,19 +582,19 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
     QXmlStreamReader reader(device);
     while (!reader.atEnd()) {
-        QXmlStreamReader::TokenType token = reader.readNext();
-        if (token == QXmlStreamReader::StartElement) {
-            if (reader.name() == QLatin1String("sheet")) {
-                QXmlStreamAttributes attributes = reader.attributes();
-                const QString name = attributes.value(QLatin1String("name")).toString();
-                int sheetId = attributes.value(QLatin1String("sheetId")).toString().toInt();
-                const QString rId = attributes.value(QLatin1String("r:id")).toString();
-                const QStringRef &stateString = attributes.value(QLatin1String("state"));
-                AbstractSheet::SheetState state = AbstractSheet::SS_Visible;
-                if (stateString == QLatin1String("hidden"))
-                    state = AbstractSheet::SS_Hidden;
-                else if (stateString == QLatin1String("veryHidden"))
-                    state = AbstractSheet::SS_VeryHidden;
+         QXmlStreamReader::TokenType token = reader.readNext();
+         if (token == QXmlStreamReader::StartElement) {
+             if (reader.name() == QLatin1String("sheet")) {
+                 QXmlStreamAttributes attributes = reader.attributes();
+                 const auto& name = attributes.value(QLatin1String("name")).toString();
+                 int sheetId = attributes.value(QLatin1String("sheetId")).toString().toInt();
+                 const auto& rId = attributes.value(QLatin1String("r:id")).toString();
+                 const auto& stateString = attributes.value(QLatin1String("state"));
+                 AbstractSheet::SheetState state = AbstractSheet::SS_Visible;
+                 if (stateString == QLatin1String("hidden"))
+                     state = AbstractSheet::SS_Hidden;
+                 else if (stateString == QLatin1String("veryHidden"))
+                     state = AbstractSheet::SS_VeryHidden;
 
                 XlsxRelationship relationship = d->relationships->getRelationshipById(rId);
 
@@ -610,12 +610,11 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 else
                     qWarning("unknown sheet type");
 
-                AbstractSheet *sheet = addSheet(name, sheetId, type);
-                sheet->setSheetState(state);
-                const QString fullPath = QDir::cleanPath(
-                    splitPath(filePath())[0] + QLatin1String("/") + relationship.target);
-                sheet->setFilePath(fullPath);
-            } else if (reader.name() == QLatin1String("workbookPr")) {
+                 AbstractSheet *sheet = addSheet(name, sheetId, type);
+                 sheet->setSheetState(state);
+                 const auto& fullPath = QDir::cleanPath(splitPath(filePath())[0] +QLatin1String("/")+ relationship.target);
+                 sheet->setFilePath(fullPath);
+             } else if (reader.name() == QLatin1String("workbookPr")) {
                 QXmlStreamAttributes attrs = reader.attributes();
                 if (attrs.hasAttribute(QLatin1String("date1904")))
                     d->date1904 = true;
@@ -647,19 +646,18 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                         }
                     }
                 }
-            } else if (reader.name() == QLatin1String("externalReference")) {
-                QXmlStreamAttributes attributes = reader.attributes();
-                const QString rId = attributes.value(QLatin1String("r:id")).toString();
-                XlsxRelationship relationship = d->relationships->getRelationshipById(rId);
+             } else if (reader.name() == QLatin1String("externalReference")) {
+                 QXmlStreamAttributes attributes = reader.attributes();
+                 const auto& rId = attributes.value(QLatin1String("r:id")).toString();
+                 XlsxRelationship relationship = d->relationships->getRelationshipById(rId);
 
-                QSharedPointer<SimpleOOXmlFile> link(new SimpleOOXmlFile(F_LoadFromExists));
-                const QString fullPath = QDir::cleanPath(
-                    splitPath(filePath())[0] + QLatin1String("/") + relationship.target);
-                link->setFilePath(fullPath);
-                d->externalLinks.append(link);
-            } else if (reader.name() == QLatin1String("definedName")) {
-                QXmlStreamAttributes attrs = reader.attributes();
-                XlsxDefineNameData data;
+                 QSharedPointer<SimpleOOXmlFile> link(new SimpleOOXmlFile(F_LoadFromExists));
+                 const auto& fullPath = QDir::cleanPath(splitPath(filePath())[0] +QLatin1String("/")+ relationship.target);
+                 link->setFilePath(fullPath);
+                 d->externalLinks.append(link);
+             } else if (reader.name() == QLatin1String("definedName")) {
+                 QXmlStreamAttributes attrs = reader.attributes();
+                 XlsxDefineNameData data;
 
                 data.name = attrs.value(QLatin1String("name")).toString();
                 if (attrs.hasAttribute(QLatin1String("comment")))

@@ -2726,8 +2726,8 @@ void WorksheetPrivate::validateDimension()
     if (dimension.isValid() || cellTable.isEmpty())
         return;
 
-    int firstRow = cellTable.constBegin().key();
-    int lastRow = (cellTable.constEnd() - 1).key();
+    const auto firstRow = cellTable.constBegin().key();
+    const auto lastRow = (--cellTable.constEnd()).key();
     int firstColumn = -1;
     int lastColumn = -1;
 
@@ -2738,8 +2738,8 @@ void WorksheetPrivate::validateDimension()
         if (firstColumn == -1 || it.value().constBegin().key() < firstColumn)
             firstColumn = it.value().constBegin().key();
 
-        if (lastColumn == -1 || (it.value().constEnd() - 1).key() > lastColumn)
-            lastColumn = (it.value().constEnd() - 1).key();
+        if (lastColumn == -1 || (--it.value().constEnd()).key() > lastColumn)
+            lastColumn = (--it.value().constEnd()).key();
     }
 
     CellRange cr(firstRow, firstColumn, lastRow, lastColumn);
