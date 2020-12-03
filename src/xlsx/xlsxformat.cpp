@@ -27,6 +27,7 @@
 #include "xlsxcolor_p.h"
 #include "xlsxnumformatparser_p.h"
 #include <QDataStream>
+#include <QIODevice>
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE_XLSX

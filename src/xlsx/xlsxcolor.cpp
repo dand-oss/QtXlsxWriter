@@ -96,17 +96,17 @@ bool XlsxColor::saveToXml(QXmlStreamWriter &writer, const QString &node) const
 
 bool XlsxColor::loadFromXml(QXmlStreamReader &reader)
 {
-    QXmlStreamAttributes attributes = reader.attributes();
+    const auto& attributes = reader.attributes();
 
     if (attributes.hasAttribute(QLatin1String("rgb"))) {
-        QString colorString = attributes.value(QLatin1String("rgb")).toString();
+        const auto& colorString = attributes.value(QLatin1String("rgb")).toString();
         val.setValue(fromARGBString(colorString));
     } else if (attributes.hasAttribute(QLatin1String("indexed"))) {
         int index = attributes.value(QLatin1String("indexed")).toString().toInt();
         val.setValue(index);
     } else if (attributes.hasAttribute(QLatin1String("theme"))) {
-        QString theme = attributes.value(QLatin1String("theme")).toString();
-        QString tint = attributes.value(QLatin1String("tint")).toString();
+        const auto& theme = attributes.value(QLatin1String("theme")).toString();
+        const auto& tint = attributes.value(QLatin1String("tint")).toString();
         val.setValue(QStringList()<<theme<<tint);
     }
     return true;
@@ -114,7 +114,11 @@ bool XlsxColor::loadFromXml(QXmlStreamReader &reader)
 
 XlsxColor::operator QVariant() const
 {
+#ifdef QT_VERSION < 0x060000 // QT5
     return QVariant(qMetaTypeId<XlsxColor>(), this);
+#else // QT6
+    return QVariant(QMetaType::fromType<XlsxColor>(), this);
+#endif // QT_VERSION < 0x060000
 }
 
 
@@ -131,9 +135,7 @@ QColor XlsxColor::fromARGBString(const QString &c)
 
 QString XlsxColor::toARGBString(const QColor &c)
 {
-    QString color;
-    color.sprintf("%02X%02X%02X%02X", c.alpha(), c.red(), c.green(), c.blue());
-    return color;
+    return QString::asprintf("%02X%02X%02X%02X", c.alpha(), c.red(), c.green(), c.blue());
 }
 
 #if !defined(QT_NO_DATASTREAM)

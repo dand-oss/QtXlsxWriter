@@ -569,10 +569,10 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
          if (token == QXmlStreamReader::StartElement) {
              if (reader.name() == QLatin1String("sheet")) {
                  QXmlStreamAttributes attributes = reader.attributes();
-                 const QString name = attributes.value(QLatin1String("name")).toString();
+                 const auto& name = attributes.value(QLatin1String("name")).toString();
                  int sheetId = attributes.value(QLatin1String("sheetId")).toString().toInt();
-                 const QString rId = attributes.value(QLatin1String("r:id")).toString();
-                 const QStringRef &stateString = attributes.value(QLatin1String("state"));
+                 const auto& rId = attributes.value(QLatin1String("r:id")).toString();
+                 const auto& stateString = attributes.value(QLatin1String("state"));
                  AbstractSheet::SheetState state = AbstractSheet::SS_Visible;
                  if (stateString == QLatin1String("hidden"))
                      state = AbstractSheet::SS_Hidden;
@@ -595,7 +595,7 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
                  AbstractSheet *sheet = addSheet(name, sheetId, type);
                  sheet->setSheetState(state);
-                 const QString fullPath = QDir::cleanPath(splitPath(filePath())[0] +QLatin1String("/")+ relationship.target);
+                 const auto& fullPath = QDir::cleanPath(splitPath(filePath())[0] +QLatin1String("/")+ relationship.target);
                  sheet->setFilePath(fullPath);
              } else if (reader.name() == QLatin1String("workbookPr")) {
                 QXmlStreamAttributes attrs = reader.attributes();
@@ -624,11 +624,11 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 }
              } else if (reader.name() == QLatin1String("externalReference")) {
                  QXmlStreamAttributes attributes = reader.attributes();
-                 const QString rId = attributes.value(QLatin1String("r:id")).toString();
+                 const auto& rId = attributes.value(QLatin1String("r:id")).toString();
                  XlsxRelationship relationship = d->relationships->getRelationshipById(rId);
 
                  QSharedPointer<SimpleOOXmlFile> link(new SimpleOOXmlFile(F_LoadFromExists));
-                 const QString fullPath = QDir::cleanPath(splitPath(filePath())[0] +QLatin1String("/")+ relationship.target);
+                 const auto& fullPath = QDir::cleanPath(splitPath(filePath())[0] +QLatin1String("/")+ relationship.target);
                  link->setFilePath(fullPath);
                  d->externalLinks.append(link);
              } else if (reader.name() == QLatin1String("definedName")) {
