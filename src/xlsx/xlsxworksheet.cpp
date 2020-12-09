@@ -1109,20 +1109,21 @@ bool Worksheet::insertObj(int row, int column,
  * \a width and \a height.
  * Returns true on success.
  */
-bool Worksheet::insertOleObject(int row,
-                                int column,
-                                int width,
-                                int height,
-                                const QString &filename,
-                                const QString &previewImageFilename,
-                                const QString &mimeType,
-                                const QString &previewMimeType,
-                                const QString &progID,
-                                const QString &require)
+bool Worksheet::insertOleObject(
+    int row,
+    int column,
+    int width,
+    int height,
+    const QString &filename,
+    const QString &previewImageFilename,
+    const QString &mimeType,
+    const QString &previewMimeType,
+    const QString &progID,
+    const QString &require)
 {
     Q_D(Worksheet);
 
-    DrawingAnchor::ObjectType objType = DrawingAnchor::ObjectType::Shape;
+    const auto& objType = DrawingAnchor::ObjectType::Shape;
     /*
         The size are expressed as English Metric Units (EMUs). There are
         12,700 EMUs per point. Therefore, 12,700 * 3 /4 = 9,525 EMUs per
@@ -1137,23 +1138,23 @@ bool Worksheet::insertOleObject(int row,
         d->drawing = QSharedPointer<Drawing>(
                     new Drawing(this, F_NewFromScratch));
 
-    DrawingTwoCellAnchor *drw_anchor =
+    auto* drw_anchor =
             new DrawingTwoCellAnchor(d->drawing.data(), objType);
     drw_anchor->from.cell = QPoint(row, column);
     drw_anchor->from.offset = QSize(row*9525, column*9525);
     drw_anchor->to.cell = QPoint(row+height, column+width);
     drw_anchor->to.offset = QSize((row+height)*9525, (column+width)*9525);
 
-    int lidx = filename.lastIndexOf('.');
-    const QString suffix = filename.mid(lidx+1);
-    const QString shapeID = drw_anchor->shape().id;
-    QSharedPointer<OleObject> oo = QSharedPointer<OleObject>(
-                            new OleObject(
-                        filename,
-                        suffix,
-                        progID,
-                        require,
-                        shapeID));
+    const auto lidx = filename.lastIndexOf('.');
+    const auto& suffix = filename.mid(lidx+1);
+    const auto shapeID = drw_anchor->shape().id;
+    const auto& oo = QSharedPointer<OleObject>(
+        new OleObject(
+            filename,
+            suffix,
+            progID,
+            require,
+            QString::number(shapeID)));
     oo->setMimeType(mimeType);
 
     QFileInfo fi(filename);
@@ -1206,8 +1207,7 @@ bool Worksheet::insertImage(int row, int column, const QImage &image)
     if (!d->drawing)
         d->drawing = QSharedPointer<Drawing>(new Drawing(this, F_NewFromScratch));
 
-    DrawingOneCellAnchor *anchor =
-        new DrawingOneCellAnchor(d->drawing.data(), DrawingAnchor::Picture);
+    auto* anchor = new DrawingOneCellAnchor(d->drawing.data(), DrawingAnchor::Picture);
 
     /*
         The size are expressed as English Metric Units (EMUs). There are
@@ -1233,8 +1233,7 @@ Chart *Worksheet::insertChart(int row, int column, const QSize &size)
     if (!d->drawing)
         d->drawing = QSharedPointer<Drawing>(new Drawing(this, F_NewFromScratch));
 
-    DrawingOneCellAnchor *anchor =
-        new DrawingOneCellAnchor(d->drawing.data(), DrawingAnchor::Picture);
+    auto* anchor = new DrawingOneCellAnchor(d->drawing.data(), DrawingAnchor::Picture);
 
     /*
         The size are expressed as English Metric Units (EMUs). There are
@@ -1244,7 +1243,7 @@ Chart *Worksheet::insertChart(int row, int column, const QSize &size)
     anchor->from = XlsxMarker(row, column, 0, 0);
     anchor->ext = size * 9525;
 
-    QSharedPointer<Chart> chart = QSharedPointer<Chart>(new Chart(this, F_NewFromScratch));
+    const auto& chart = QSharedPointer<Chart>(new Chart(this, F_NewFromScratch));
     anchor->setObjectGraphicFrame(chart);
 
     return chart.data();
@@ -1390,7 +1389,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
         QMapIterator<int, QSharedPointer<XlsxColumnInfo>> it(d->colsInfo);
         while (it.hasNext()) {
             it.next();
-            QSharedPointer<XlsxColumnInfo> col_info = it.value();
+            const auto& col_info = it.value();
             writer.writeStartElement(QStringLiteral("col"));
             writer.writeAttribute(QStringLiteral("min"), QString::number(col_info->firstColumn));
             writer.writeAttribute(QStringLiteral("max"), QString::number(col_info->lastColumn));
@@ -1453,7 +1452,7 @@ void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
             writer.writeAttribute(QStringLiteral("spans"), span);
 
         if (rowsInfo.contains(row_num)) {
-            QSharedPointer<XlsxRowInfo> rowInfo = rowsInfo[row_num];
+            const auto& rowInfo = rowsInfo[row_num];
             if (!rowInfo->format.isEmpty()) {
                 writer.writeAttribute(QStringLiteral("s"),
                                       QString::number(rowInfo->format.xfIndex()));
@@ -1493,8 +1492,8 @@ void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
 void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int col,
                                        QSharedPointer<Cell> cell) const
 {
-    // This is the innermost loop so efficiency is important.
-    QString cell_pos = CellReference(row, col).toString();
+    //This is the innermost loop so efficiency is important.
+    const auto& cell_pos = CellReference(row, col).toString();
 
     writer.writeStartElement(QStringLiteral("c"));
     writer.writeAttribute(QStringLiteral("r"), cell_pos);
@@ -1603,11 +1602,11 @@ void WorksheetPrivate::saveXmlOleObjects(QXmlStreamWriter &writer) const
         return;
 
     writer.writeStartElement(QStringLiteral("oleObjects"));
-    QList<QSharedPointer<OleObject> > oleFiles = oleObjectFiles();
-    QList<QSharedPointer<MediaFile>> mediaFiles = workbook->mediaFiles();
+    const auto& oleFiles = oleObjectFiles();
+    const auto& mediaFiles = workbook->mediaFiles();
 
     for (int i=0; i < oleFiles.size(); ++i) {
-        QSharedPointer<OleObject> obj = oleFiles[i];
+        const auto& obj = oleFiles[i];
 
         QFileInfo fi(obj->fileName());
         relationships->addWorksheetRelationship(QStringLiteral("/package"),
@@ -1615,7 +1614,7 @@ void WorksheetPrivate::saveXmlOleObjects(QXmlStreamWriter &writer) const
                                                 .arg(fi.fileName()));
         obj->setIndex(relationships->count());
 
-        QSharedPointer<MediaFile> media = obj->prMediaFile();
+        const auto& media = obj->prMediaFile();
         if (media && media->fileName().size() > 0) {
             media->setIndex(mediaFiles.size());
             relationships->addDocumentRelationship(QStringLiteral("/image"),
@@ -1692,7 +1691,7 @@ void WorksheetPrivate::saveXmlHyperlinks(QXmlStreamWriter &writer) const
         while (it2.hasNext()) {
             it2.next();
             int col = it2.key();
-            QSharedPointer<XlsxHyperlinkData> data = it2.value();
+            const auto& data = it2.value();
             QString ref = CellReference(row, col).toString();
             writer.writeEmptyElement(QStringLiteral("hyperlink"));
             writer.writeAttribute(QStringLiteral("ref"), ref);
@@ -1740,7 +1739,7 @@ void WorksheetPrivate::splitColsInfo(int colFirst, int colLast)
         QMapIterator<int, QSharedPointer<XlsxColumnInfo>> it(colsInfo);
         while (it.hasNext()) {
             it.next();
-            QSharedPointer<XlsxColumnInfo> info = it.value();
+            const auto& info = it.value();
             if (colFirst > info->firstColumn && colFirst <= info->lastColumn) {
                 // split the range,
                 QSharedPointer<XlsxColumnInfo> info2(new XlsxColumnInfo(*info));
@@ -1758,7 +1757,7 @@ void WorksheetPrivate::splitColsInfo(int colFirst, int colLast)
         QMapIterator<int, QSharedPointer<XlsxColumnInfo>> it(colsInfo);
         while (it.hasNext()) {
             it.next();
-            QSharedPointer<XlsxColumnInfo> info = it.value();
+            const auto& info = it.value();
             if (colLast >= info->firstColumn && colLast < info->lastColumn) {
                 QSharedPointer<XlsxColumnInfo> info2(new XlsxColumnInfo(*info));
                 info->lastColumn = colLast;
