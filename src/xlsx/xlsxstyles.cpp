@@ -45,16 +45,37 @@ Styles::Styles(CreateFlag flag)
     : AbstractOOXmlFile(flag), m_nextCustomNumFmtId(176), m_isIndexedColorsDefault(true)
     , m_emptyFormatAdded(false)
 {
-    //!Fix me. Should the custom num fmt Id starts with 164 or 176 or others??
+        //!Fix me. Should the custom num fmt Id starts with 164 or 176 or others??
 
     //!Fix me! Where should we put these register code?
-    if (QMetaType::type("XlsxColor") == QMetaType::UnknownType) {
+
+    // issue #89
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 0, 0 )
+    if (QMetaType::type("XlsxColor") == QMetaType::UnknownType)
+#else
+    if (QMetaType::type("XlsxColor") == 0
+        || !QMetaType::isRegistered(QMetaType::type("XlsxColor")))
+#endif
+
+
+    {
         qRegisterMetaType<XlsxColor>("XlsxColor");
-#if QT_VERSION < 0x060000 // QT6
+
+#if QT_VERSION >= 0x060000
+        // Qt 6
+
+        ///TODO:
+
+#else
+        // Qt 5
+
         qRegisterMetaTypeStreamOperators<XlsxColor>("XlsxColor");
-#elif QT_VERSION >= 0x050200 // QT5
+
+#if QT_VERSION >= 0x050200 // 5.2 or higher
         QMetaType::registerDebugStreamOperator<XlsxColor>();
-#endif // QT4
+#endif
+
+#endif
     }
 
     if (flag == F_NewFromScratch) {

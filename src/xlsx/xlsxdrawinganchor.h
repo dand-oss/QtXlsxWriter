@@ -45,9 +45,12 @@ class Chart;
 //Helper classes
 struct XlsxMarker
 {
-    XlsxMarker(){}
-    XlsxMarker(int row, int column, int rowOffset, int colOffset)
-        :cell(QPoint(row, column)), offset(rowOffset, colOffset)
+    XlsxMarker() = default ;
+    ~XlsxMarker() = default ;
+
+    explicit XlsxMarker(int row, int column, int rowOffset, int colOffset)
+        :cell(QPoint(row, column))
+        , offset(rowOffset, colOffset)
     {
 
     }
@@ -64,11 +67,15 @@ struct XlsxMarker
 //Shape
 struct XlsxShape
 {
-    XlsxShape(){}
-    XlsxShape(int _id, QString _name) :
-        id(_id), name(_name){}
+    XlsxShape() = default;
+    ~XlsxShape() = default;
 
-    QString id;
+    explicit XlsxShape(int _id, QString _name)
+        : id(_id)
+        , name(_name)
+    {}
+
+    int id;
     QString name;
 };
 
@@ -85,12 +92,15 @@ public:
         Unknown
     };
 
-    DrawingAnchor(ObjectType objectType);
-    DrawingAnchor(Drawing *drawing, ObjectType objectType);
+    DrawingAnchor() = delete ;
     virtual ~DrawingAnchor();
-    void setObjectFile(const QString &filename,
-                       const QString &mimeType,
-                       const ObjectType objType);
+
+    explicit DrawingAnchor(ObjectType objectType);
+    explicit DrawingAnchor(Drawing *drawing, ObjectType objectType);
+    void setObjectFile(
+        const QString &filename,
+        const QString &mimeType,
+        const ObjectType objType);
     void setObjectPicture(const QImage &img);
     void setObjectGraphicFrame(QSharedPointer<Chart> chart);
     QSharedPointer<MediaFile> picture() { return m_pictureFile; }
@@ -121,19 +131,21 @@ protected:
     void saveXmlObjectConnectionShape(QXmlStreamWriter &writer) const;
     void saveXmlObjectPicture(QXmlStreamWriter &writer) const;
 
-    Drawing *m_drawing;
+    Drawing *m_drawing {nullptr};
     ObjectType m_objectType;
     QSharedPointer<MediaFile> m_pictureFile;
     QSharedPointer<Chart> m_chartFile;
     XlsxShape m_shape;
 
-    int m_id;
+    int m_id {-1};
 };
 
 class DrawingAbsoluteAnchor : public DrawingAnchor
 {
 public:
-    DrawingAbsoluteAnchor(Drawing *drawing, ObjectType objectType=Unknown);
+    ~DrawingAbsoluteAnchor() override = default;
+
+    explicit DrawingAbsoluteAnchor(Drawing *drawing, ObjectType objectType=Unknown);
 
     QPoint pos;
     QSize ext;
@@ -145,7 +157,8 @@ public:
 class DrawingOneCellAnchor : public DrawingAnchor
 {
 public:
-    DrawingOneCellAnchor(Drawing *drawing, ObjectType objectType=Unknown);
+    ~DrawingOneCellAnchor() override = default ;
+    explicit DrawingOneCellAnchor(Drawing *drawing, ObjectType objectType=Unknown);
 
     XlsxMarker from;
     QSize ext;
@@ -157,7 +170,9 @@ public:
 class DrawingTwoCellAnchor : public DrawingAnchor
 {
 public:
-    DrawingTwoCellAnchor(Drawing *drawing, ObjectType objectType=Unknown);
+    ~DrawingTwoCellAnchor() override = default;
+
+    explicit DrawingTwoCellAnchor(Drawing *drawing, ObjectType objectType=Unknown);
 
     XlsxMarker from;
     XlsxMarker to;
