@@ -85,16 +85,17 @@ DrawingAnchor::DrawingAnchor(Drawing *drawing, ObjectType objectType)
     m_drawing->anchors.append(this);
     m_id = m_drawing->anchors.size(); //must be unique in one drawing{x}.xml file.
     m_drawing->shapes.append(&(this->m_shape));
-    m_shape.id = QString::number(m_drawing->shapes.size());
+    m_shape.id = m_drawing->shapes.size();
 }
 
 DrawingAnchor::~DrawingAnchor()
 {
 }
 
-void DrawingAnchor::setObjectFile(const QString &filename,
-                                  const QString &mimeType,
-                                  const ObjectType objType)
+void DrawingAnchor::setObjectFile(
+    const QString &filename,
+    const QString &mimeType,
+    const ObjectType objType)
 {
     QFileInfo fi(filename);
     Q_ASSERT(fi.isFile());
@@ -144,7 +145,7 @@ QPoint DrawingAnchor::loadXmlPos(QXmlStreamReader &reader)
     Q_ASSERT(reader.name() == QLatin1String("pos"));
 
     QPoint pos;
-    QXmlStreamAttributes attrs = reader.attributes();
+    const auto& attrs = reader.attributes();
     pos.setX(attrs.value(QLatin1String("x")).toString().toInt());
     pos.setY(attrs.value(QLatin1String("y")).toString().toInt());
     return pos;
@@ -155,7 +156,7 @@ QSize DrawingAnchor::loadXmlExt(QXmlStreamReader &reader)
     Q_ASSERT(reader.name() == QLatin1String("ext"));
 
     QSize size;
-    QXmlStreamAttributes attrs = reader.attributes();
+    const auto& attrs = reader.attributes();
     size.setWidth(attrs.value(QLatin1String("cx")).toString().toInt());
     size.setHeight(attrs.value(QLatin1String("cy")).toString().toInt());
     return size;
@@ -227,10 +228,9 @@ void DrawingAnchor::loadXmlObjectGraphicFrame(QXmlStreamReader &reader)
         reader.readNextStartElement();
         if (reader.tokenType() == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("chart")) {
-                QString rId = reader.attributes().value(QLatin1String("r:id")).toString();
-                QString name = m_drawing->relationships()->getRelationshipById(rId).target;
-                QString path = QDir::cleanPath(splitPath(m_drawing->filePath())[0]
-                                               + QLatin1String("/") + name);
+                const auto& rId = reader.attributes().value(QLatin1String("r:id")).toString();
+                const auto& name = m_drawing->relationships()->getRelationshipById(rId).target;
+                const auto& path = QDir::cleanPath(splitPath(m_drawing->filePath())[0] + QLatin1String("/") + name);
 
                 bool exist = false;
                 QList<QSharedPointer<Chart>> cfs = m_drawing->workbook->chartFiles();
@@ -270,10 +270,9 @@ void DrawingAnchor::loadXmlObjectPicture(QXmlStreamReader &reader)
         reader.readNextStartElement();
         if (reader.tokenType() == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("blip")) {
-                QString rId = reader.attributes().value(QLatin1String("r:embed")).toString();
-                QString name = m_drawing->relationships()->getRelationshipById(rId).target;
-                QString path = QDir::cleanPath(splitPath(m_drawing->filePath())[0]
-                                               + QLatin1String("/") + name);
+                const auto& rId = reader.attributes().value(QLatin1String("r:embed")).toString();
+                const auto& name = m_drawing->relationships()->getRelationshipById(rId).target;
+                const auto& path = QDir::cleanPath(splitPath(m_drawing->filePath())[0] + QLatin1String("/") + name);
 
                 bool exist = false;
                 QList<QSharedPointer<MediaFile>> mfs = m_drawing->workbook->mediaFiles();
@@ -310,7 +309,7 @@ void DrawingAnchor::loadXmlObjectShape(QXmlStreamReader &reader)
                     // id: drawing element id
                     // required attribs: id, name
                     // optional attribs: descr, hidden, title
-                m_shape.id = reader.attributes().value(QLatin1String("id")).toString();
+                m_shape.id = reader.attributes().value(QLatin1String("id")).toInt() ;
                 m_shape.name = reader.attributes().value(QLatin1String("name")).toString();
                 // element: cNvSpPr
             }
@@ -483,7 +482,7 @@ void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const
     writer.writeAttribute(QStringLiteral("textlink"), QStringLiteral(""));
     writer.writeStartElement(QStringLiteral("xdr:nvSpPr"));
     writer.writeStartElement(QStringLiteral("xdr:cNvPr"));
-    writer.writeAttribute(QStringLiteral("id"), m_shape.id);
+    writer.writeAttribute(QStringLiteral("id"), QString::number(m_shape.id));
     writer.writeAttribute(QStringLiteral("name"), m_shape.name);
     writer.writeEndElement(); // xdr:cNvPr
     writer.writeEmptyElement(QStringLiteral("xdr:cNvSpPr"));
