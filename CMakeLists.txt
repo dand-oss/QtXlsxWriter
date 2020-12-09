@@ -15,7 +15,6 @@ message(STATUS ${CMAKE_CURRENT_LIST_FILE})
 list(APPEND CMAKE_PREFIX_PATH ${AQTDIR})
 set(QT_LIBINFIX "ASV")
 find_package(Qt5 CONFIG REQUIRED COMPONENTS Gui)
-set(CMAKE_AUTOMOC ON)
 
 # get header files that are not *_p.h
 file(GLOB tmp_hdr ${CMAKE_CURRENT_SOURCE_DIR}/src/xlsx/*.h)
@@ -28,6 +27,7 @@ endforeach()
 
 add_library(${libname} SHARED)
 target_link_libraries(${libname} Qt5::GuiPrivate)
+set_target_properties(${libname} PROPERTIES AUTOMOC ON)
 set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 if (UNIX)
     # force linker to resolve all deps
