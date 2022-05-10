@@ -136,7 +136,7 @@ public:
     Format();
     Format(const Format &other);
     Format &operator=(const Format &rhs);
-    ~Format();
+    virtual ~Format();
 
     int numberFormatIndex() const;
     void setNumberFormatIndex(int format);
