@@ -134,7 +134,7 @@ bool RichString::isNull() const
 /*!
     Returns true is this is an empty string.
  */
-bool RichString::isEmtpy() const
+bool RichString::isEmpty() const
 {
     foreach (const QString str, d->fragmentTexts) {
         if (!str.isEmpty())
@@ -149,7 +149,7 @@ bool RichString::isEmtpy() const
 */
 QString RichString::toPlainString() const
 {
-    if (isEmtpy())
+    if (isEmpty())
         return QString();
     if (d->fragmentTexts.size() == 1)
         return d->fragmentTexts[0];
