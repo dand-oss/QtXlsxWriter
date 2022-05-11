@@ -47,7 +47,7 @@ public:
 
     bool isRichString() const;
     bool isNull() const;
-    bool isEmtpy() const;
+    bool isEmpty() const;
     QString toPlainString() const;
     QString toHtml() const;
     void setHtml(const QString &text);
