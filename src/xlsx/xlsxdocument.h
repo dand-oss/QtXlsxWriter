@@ -46,7 +46,7 @@ class Chart;
 class CellReference;
 
 class DocumentPrivate;
-class Q_XLSX_EXPORT Document : public QObject
+class Q_XLSX_API Document : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(Document)

@@ -39,4 +39,13 @@
 #  define XLSX_AUTOTEST_EXPORT
 #endif
 
+// cmake shared lib target DEFINE_SYMBOL
+#ifdef xlsx_EXPORTS
+    // when building shared library
+    #define Q_XLSX_API Q_DECL_EXPORT
+#else
+    // used outside dll
+    #define Q_XLSX_API Q_DECL_IMPORT
+#endif // xlsx_EXPORTS
+
 #endif // XLSXGLOBAL_H
