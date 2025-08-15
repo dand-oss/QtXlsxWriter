@@ -2,8 +2,8 @@
 
 include(CMakeFindDependencyMacro)
 
-# Find Qt6 dependency - required by our library
-find_dependency(Qt6 REQUIRED COMPONENTS Gui)
+# Find Qt5 dependency - required by our library
+find_dependency(Qt5 REQUIRED COMPONENTS Gui)
 
 # Include our exported targets
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
