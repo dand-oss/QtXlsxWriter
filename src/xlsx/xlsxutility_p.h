@@ -39,6 +39,7 @@
 #include "xlsxglobal.h"
 class QPoint;
 class QString;
+class QStringList;
 class QColor;
 class QDateTime;
 class QTime;
