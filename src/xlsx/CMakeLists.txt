@@ -128,7 +128,7 @@ if(UNIX)
 endif()
 
 target_link_libraries(${libname}
-  PUBLIC Qt::GuiPrivate
+  PUBLIC Qt5::GuiPrivate
 )
 
 # -----------------------
