@@ -14,14 +14,15 @@ asv_cmake_defaults( )
 
 set(libname xlsx)
 
-find_package(Qt5 CONFIG REQUIRED
-    PATHS ${ASV_PLAT_PORTS}/qt5 NO_DEFAULT_PATH
+find_package(Qt6 CONFIG REQUIRED
+    PATHS ${AQTDIR} NO_DEFAULT_PATH
     COMPONENTS
-      Gui
+        Gui
+        GuiPrivate
 )
 asv_print_package_properties(
-    Qt5::Gui
-    )
+    Qt::Gui
+)
 
 # -----------------------
 # Public header list
@@ -53,7 +54,7 @@ asv_optimize_target(${libname})
 target_link_libraries(${libname} Qt::GuiPrivate)
 set_target_properties(${libname} PROPERTIES
     AUTOMOC ON
-    OUTPUT_NAME "Qt5Xlsx")
+    OUTPUT_NAME "Qt6Xlsx")
 
 if (UNIX)
     # force linker to resolve all deps
