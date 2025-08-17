@@ -40,7 +40,7 @@ namespace QXlsx {
 
 struct XlsxMarker;
 
-class Anchor
+class Q_XLSX_EXPORT Anchor
 {
 public:
 

@@ -33,7 +33,7 @@
 
 namespace QXlsx {
 
-class OleObject
+class Q_XLSX_EXPORT OleObject
 {
 public:
     OleObject(const QString &fileName,

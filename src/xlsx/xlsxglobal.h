@@ -30,22 +30,17 @@
 #define QT_END_NAMESPACE_XLSX }
 #define QTXLSX_USE_NAMESPACE using namespace QXlsx;
 
-// we always use a static lib...
-#define Q_XLSX_EXPORT
+// cmake defines <libname>_EXPORTS building shared libraries
+#ifdef xlsx_EXPORTS
+    #define Q_XLSX_EXPORT Q_DECL_EXPORT
+#else
+    #define Q_XLSX_EXPORT Q_DECL_IMPORT
+#endif // xlsx_EXPORTS
 
 #ifdef XLSX_TEST
 #define XLSX_AUTOTEST_EXPORT Q_XLSX_EXPORT
 #else
 #define XLSX_AUTOTEST_EXPORT
 #endif
-
-// cmake shared lib target DEFINE_SYMBOL
-#ifdef xlsx_EXPORTS
-    // when building shared library
-    #define Q_XLSX_API Q_DECL_EXPORT
-#else
-    // used outside dll
-    #define Q_XLSX_API Q_DECL_IMPORT
-#endif // xlsx_EXPORTS
 
 #endif // XLSXGLOBAL_H
