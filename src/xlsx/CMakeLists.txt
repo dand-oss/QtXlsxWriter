@@ -30,80 +30,11 @@ set(public_headers
 )
 
 # -----------------------
-# Private source/header list
-# -----------------------
-set(private_sources
-  xlsxabstractooxmlfile.cpp
-  xlsxabstractsheet.cpp
-  xlsxanchor.cpp
-  xlsxcell.cpp
-  xlsxcellformula.cpp
-  xlsxcellrange.cpp
-  xlsxcellreference.cpp
-  xlsxchart.cpp
-  xlsxchartsheet.cpp
-  xlsxcolor.cpp
-  xlsxconditionalformatting.cpp
-  xlsxcontenttypes.cpp
-  xlsxdatavalidation.cpp
-  xlsxdocpropsapp.cpp
-  xlsxdocpropscore.cpp
-  xlsxdocument.cpp
-  xlsxdrawing.cpp
-  xlsxdrawinganchor.cpp
-  xlsxformat.cpp
-  xlsxmediafile.cpp
-  xlsxnumformatparser.cpp
-  xlsxoleobject.cpp
-  xlsxrelationships.cpp
-  xlsxrichstring.cpp
-  xlsxsharedstrings.cpp
-  xlsxsimpleooxmlfile.cpp
-  xlsxstyles.cpp
-  xlsxtheme.cpp
-  xlsxutility.cpp
-  xlsxworkbook.cpp
-  xlsxworksheet.cpp
-  xlsxzipreader.cpp
-  xlsxzipwriter.cpp
-
-  # Private headers
-  xlsxabstractooxmlfile_p.h
-  xlsxabstractsheet_p.h
-  xlsxcell_p.h
-  xlsxcellformula_p.h
-  xlsxchart_p.h
-  xlsxchartsheet_p.h
-  xlsxcolor_p.h
-  xlsxconditionalformatting_p.h
-  xlsxcontenttypes_p.h
-  xlsxdatavalidation_p.h
-  xlsxdocpropsapp_p.h
-  xlsxdocpropscore_p.h
-  xlsxdocument_p.h
-  xlsxdrawing_p.h
-  xlsxformat_p.h
-  xlsxmediafile_p.h
-  xlsxnumformatparser_p.h
-  xlsxrelationships_p.h
-  xlsxrichstring_p.h
-  xlsxsharedstrings_p.h
-  xlsxsimpleooxmlfile_p.h
-  xlsxstyles_p.h
-  xlsxtheme_p.h
-  xlsxutility_p.h
-  xlsxworkbook_p.h
-  xlsxworksheet_p.h
-  xlsxzipreader_p.h
-  xlsxzipwriter_p.h
-)
-
-# -----------------------
 # Library target
 # -----------------------
 add_library(${libname} SHARED)
 
-# Bundle all headers and private sources
+# Bundle all headers
 set(public_header_sources)
 foreach(h IN LISTS public_headers)
   list(APPEND public_header_sources
@@ -113,8 +44,71 @@ foreach(h IN LISTS public_headers)
 endforeach()
 
 target_sources(${libname}
-  PRIVATE ${private_sources}
   PUBLIC  ${public_header_sources}
+  PRIVATE 
+    xlsxabstractooxmlfile.cpp
+    xlsxabstractsheet.cpp
+    xlsxanchor.cpp
+    xlsxcell.cpp
+    xlsxcellformula.cpp
+    xlsxcellrange.cpp
+    xlsxcellreference.cpp
+    xlsxchart.cpp
+    xlsxchartsheet.cpp
+    xlsxcolor.cpp
+    xlsxconditionalformatting.cpp
+    xlsxcontenttypes.cpp
+    xlsxdatavalidation.cpp
+    xlsxdocpropsapp.cpp
+    xlsxdocpropscore.cpp
+    xlsxdocument.cpp
+    xlsxdrawing.cpp
+    xlsxdrawinganchor.cpp
+    xlsxformat.cpp
+    xlsxmediafile.cpp
+    xlsxnumformatparser.cpp
+    xlsxoleobject.cpp
+    xlsxrelationships.cpp
+    xlsxrichstring.cpp
+    xlsxsharedstrings.cpp
+    xlsxsimpleooxmlfile.cpp
+    xlsxstyles.cpp
+    xlsxtheme.cpp
+    xlsxutility.cpp
+    xlsxworkbook.cpp
+    xlsxworksheet.cpp
+    xlsxzipreader.cpp
+    xlsxzipwriter.cpp
+
+    # Private headers
+    xlsxabstractooxmlfile_p.h
+    xlsxabstractsheet_p.h
+    xlsxcell_p.h
+    xlsxcellformula_p.h
+    xlsxchart_p.h
+    xlsxchartsheet_p.h
+    xlsxcolor_p.h
+    xlsxconditionalformatting_p.h
+    xlsxcontenttypes_p.h
+    xlsxdatavalidation_p.h
+    xlsxdocpropsapp_p.h
+    xlsxdocpropscore_p.h
+    xlsxdocument_p.h
+    xlsxdrawing_p.h
+    xlsxformat_p.h
+    xlsxmediafile_p.h
+    xlsxnumformatparser_p.h
+    xlsxrelationships_p.h
+    xlsxrichstring_p.h
+    xlsxsharedstrings_p.h
+    xlsxsimpleooxmlfile_p.h
+    xlsxstyles_p.h
+    xlsxtheme_p.h
+    xlsxutility_p.h
+    xlsxworkbook_p.h
+    xlsxworksheet_p.h
+    xlsxzipreader_p.h
+    xlsxzipwriter_p.h
 )
 
 target_include_directories(${libname}
@@ -125,7 +119,6 @@ target_include_directories(${libname}
 
 set_target_properties(${libname} PROPERTIES
   PUBLIC_HEADER  "${public_headers}"
-  PRIVATE_HEADER "${private_sources}"
   AUTOMOC        ON
   WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
@@ -154,36 +147,3 @@ install(EXPORT ${PROJECT_NAME}Targets
   NAMESPACE ${PROJECT_NAME}::
   DESTINATION lib/cmake/${PROJECT_NAME}
 )
-
-# -----------------------
-# Config and version files
-# -----------------------
-include(CMakePackageConfigHelpers)
-
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  VERSION       ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
-)
-
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/../../${PROJECT_NAME}Config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  @ONLY
-)
-
-install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  DESTINATION lib/cmake/${PROJECT_NAME}
-)
-
-# -----------------------
-# CPack configuration
-# -----------------------
-set(CPACK_PACKAGE_NAME        "${PROJECT_NAME}")
-set(CPACK_PACKAGE_VERSION     "${PROJECT_VERSION}")
-set(CPACK_PACKAGE_DESCRIPTION "Read and write xlsx with QT")
-set(CPACK_PACKAGE_VENDOR      "xAI")
-set(CPACK_GENERATOR           "ZIP;TGZ")
-include(CPack)
