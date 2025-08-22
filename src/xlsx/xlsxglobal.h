@@ -39,10 +39,10 @@
 // cmake shared lib target DEFINE_SYMBOL
 #ifdef xlsx_EXPORTS
     // when building shared library
-    #define Q_XLSX_EXPORT Q_DECL_EXPORT
+    #define Q_XLSX_EXPORT __declspec(dllexport)
 #else
     // used outside dll
-    #define Q_XLSX_EXPORT Q_DECL_IMPORT
+    #define Q_XLSX_EXPORT __declspec(dllimport)
 #endif // xlsx_EXPORTS
 
 #endif // XLSXGLOBAL_H
