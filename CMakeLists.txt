@@ -56,6 +56,32 @@ if (UNIX)
     set_target_properties(${libname} PROPERTIES LINK_FLAGS "-Wl,--no-undefined")
 endif (UNIX)
 
+if( MSVC)
+    # Compile-time flags
+    target_compile_options(${libname} PRIVATE
+        "-GL"           # Whole program optimization
+        "-Gw"           # Global data optimization
+        "-Gy"           # Function-level linking
+        "-Zc:inline"    # Remove unreferenced inline functions
+        "-Gd"           # Use __cdecl (smaller than __stdcall)
+    )
+
+    # For Release builds, be even more aggressive
+    target_compile_options(${libname} PRIVATE
+        $<$<CONFIG:Release>:-O2>     # Optimize for speed
+        $<$<CONFIG:Release>:-Ob2>    # Inline expansion
+        $<$<CONFIG:Release>:-GF>     # String pooling
+        $<$<CONFIG:Release>:-GS->    # Disable security checks
+    )
+
+    # Link-time flags
+    set_target_properties(${libname} PROPERTIES
+        LINK_FLAGS_RELEASE "-LTCG:incremental -OPT:REF -OPT:ICF=10 -OPT:LBR"
+        LINK_FLAGS_RELWITHDEBINFO "-LTCG:incremental -OPT:REF -OPT:ICF=5"
+        LINK_FLAGS_DEBUG "-OPT:NOREF -OPT:NOICF"  # Keep debug symbols intact
+    )
+endif()
+
 # Use file sets for public headers
 target_sources(${libname} PUBLIC
     FILE_SET HEADERS
