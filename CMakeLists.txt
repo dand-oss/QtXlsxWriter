@@ -157,10 +157,11 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion
 )
 
-configure_file(
+# Use configure_package_config_file to properly expand @PACKAGE_INIT@
+configure_package_config_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  @ONLY
+  INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
 install(FILES
